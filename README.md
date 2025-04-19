@@ -25,8 +25,9 @@ This guide explains how to set up and run the project with a PostgreSQL database
    cp .env.example .env
    ```
 
-2. Update database credentials in `.env` (these example values will be used by Docker):
+2. Update values in `.env` (These are example values):
    ```
+   PORT=3000
    DB_USER=review_user
    DB_PASSWORD=review_pass
    DB_NAME=review_db
