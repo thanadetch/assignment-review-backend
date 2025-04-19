@@ -8,6 +8,10 @@ export class UsersRepository {
     this.prisma = prisma;
   }
 
+  async getUsers() {
+    return this.prisma.user.findMany();
+  }
+
   async createUser(data: Prisma.UserCreateInput) {
     return this.prisma.user.create({
       data,

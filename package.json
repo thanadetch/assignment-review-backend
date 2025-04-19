@@ -10,6 +10,7 @@
     "prisma:migrate:deploy": "npx prisma migrate deploy",
     "prisma:migrate:dev": "npx prisma migrate dev",
     "prisma:migrate:reset": "npx prisma migrate reset",
+    "prisma:seed": "npx prisma db seed",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -79,5 +80,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }
