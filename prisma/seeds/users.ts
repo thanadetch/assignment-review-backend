@@ -13,6 +13,12 @@ export const users: User[] = [
     firstName: 'firstName2',
     lastName: 'lastName2',
   },
+  {
+    id: '214c12fa-8490-464a-a423-3c0e22e0d997',
+    email: 'test3@test.com',
+    firstName: 'firstName3',
+    lastName: 'lastName3',
+  },
 ];
 
 export async function seedUsers(prisma: PrismaClient) {
