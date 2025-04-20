@@ -92,7 +92,7 @@ This command:
 
 After schema changes, you might need these commands:
 
-- **Apply migrations in production/CI environments**:
+- **Apply migrations (Only apply migrations)**:
   ```bash
   npm run prisma:migrate:deploy
   ```
@@ -100,11 +100,6 @@ After schema changes, you might need these commands:
 - **Reset database (caution: deletes all data)**:
   ```bash
   npm run prisma:migrate:reset
-  ```
-
-- **Generate Prisma Client only** (if schema changed but no migration needed):
-  ```bash
-  npx prisma generate
   ```
 
 - **Seed the database with initial data**:
