@@ -75,3 +75,55 @@ http://localhost:3000/api
   ```bash
   npx prisma generate
   ```
+
+---
+
+# Schema Changes Workflow
+
+When modifying your `schema.prisma` file, follow this workflow to apply changes to your database:
+
+## 1. Making Schema Changes
+
+Edit the `schema.prisma` file to define new models, modify existing ones, or update relationships.
+
+## 2. Generate and Apply Migrations
+
+After changing your schema, run:
+
+```bash
+npm run prisma:migrate:dev
+```
+
+This command:
+- Creates a new migration file in the `prisma/migrations` directory
+- Prompts you to name the migration (use descriptive names like "add_user_role")
+- Applies the migration to your development database
+- Regenerates the Prisma Client
+
+## 3. Additional Commands
+
+After schema changes, you might need these commands:
+
+- **Apply migrations in production/CI environments**:
+  ```bash
+  npm run prisma:migrate:deploy
+  ```
+
+- **Reset database (caution: deletes all data)**:
+  ```bash
+  npm run prisma:migrate:reset
+  ```
+
+- **Generate Prisma Client only** (if schema changed but no migration needed):
+  ```bash
+  npx prisma generate
+  ```
+
+- **Seed the database with initial data**:
+  ```bash
+  npm run prisma:seed
+  ```
+
+## 4. Restart Your Application
+
+For changes to take effect in your running application, restart your server.
