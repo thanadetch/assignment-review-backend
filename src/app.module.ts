@@ -4,9 +4,36 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ReviewModule } from './api/review/review.module';
+import { CommentModule } from './api/comment/comment.module';
+import { AssignmentModule } from './api/assignment/assignment.module';
+import { NotificationModule } from './notification/notification.module';
+import { EmailModule } from './email/email.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import * as process from 'node:process';
+
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule],
+  imports: [
+    ConfigModule.forRoot(),
+    UsersModule,
+    AuthModule,
+    ReviewModule,
+    CommentModule,
+    AssignmentModule,
+    NotificationModule,
+    EmailModule,
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.gmail.com',
+        auth: {
+          user: process.env.EMAIL_FROM,
+          pass: process.env.EMAIL_PASS
+        }
+      }
+    })
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

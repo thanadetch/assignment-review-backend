@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "app/generated/prisma/client"
 }
 
 datasource db {
@@ -16,6 +17,122 @@ datasource db {
 model User {
   id        String @id @default(uuid())
   email     String @unique
+  password  String
   firstName String
   lastName  String
+  role      Role   @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  // Relation
+  groupId      Int? // might not be in the group at first
+  group        Group?         @relation(fields: [groupId], references: [id])
+  subjects     Subject[]
+  assignment   Assignment[]
+  Comment      Comment[]
+  Notification Notification[]
+  Review       Review[]
+
+}
+
+model Group {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  // Relation
+  users      User[]
+  assignment Assignment[]
+}
+
+model Subject {
+  id    String @id @default(uuid())
+  name  String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  // Relation
+  users User[]
+}
+
+model MasterAssignment {
+  id     String @id @default(uuid())
+  title  String
+  detail String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  //Relation
+  assignments Assignment[]
+}
+
+model Assignment {
+  id                   String  @id @default(uuid())
+  content              String
+  previousAssignmentId String?
+  status               Status
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  //Relation
+  masterId         String
+  masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])
+  userId           String?
+  user             User?            @relation(fields: [userId], references: [id])
+  groupId          Int?
+  group            Group?           @relation(fields: [groupId], references: [id])
+  reviews          Review[]
+}
+
+model Review {
+  id      String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  //Relation
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  Comment      Comment[]
+}
+
+model Comment {
+  id      String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  //Relation
+  reviewId String
+  review   Review @relation(fields: [reviewId], references: [id])
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id      String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  //Relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+}
+
+enum Status {
+  ASSIGNED
+  SUBMITTED
+  READY_TO_REVIEW
+  IN_REVIEW
+  REVIEWED
+  COMPLETED
 }
