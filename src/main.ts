@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
   const config = new DocumentBuilder()
     .setTitle('Assignment review')
     .setDescription('The assignment review API')
@@ -15,4 +16,5 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
