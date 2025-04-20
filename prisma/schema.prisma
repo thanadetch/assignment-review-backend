@@ -14,8 +14,28 @@ datasource db {
 }
 
 enum Role {
-  STUDENT
-  INSTRUCTOR
+  student
+  instructor
+}
+
+enum AssignmentType {
+  SUBMISSION
+  REVIEW
+}
+
+enum SubmissionStatus {
+  ASSIGNED
+  SUBMITTED
+  READY_TO_REVIEW
+  IN_REVIEW
+  REVIEWED
+  COMPLETED
+}
+
+enum ReviewStatus {
+  ASSIGNED
+  IN_REVIEW
+  COMPLETED
 }
 
 model User {
@@ -28,4 +48,127 @@ model User {
 
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+
+  subjectLinks   SubjectUser[]
+  groupLinks     GroupUser[]
+  assignments    Assignment[]
+  reviews        Review[]
+  comments       Comment[]
+  notifications  Notification[]
+  createdGroups  Group[]     @relation("GroupCreatedBy")
+  createdSubjects Subject[]  @relation("SubjectCreatedBy")
+}
+
+model Subject {
+  id          String        @id @default(uuid())
+  title       String
+  code        String        @unique
+  description String?
+  createdAt   DateTime      @default(now())
+
+  createdById String
+  createdBy   User          @relation("SubjectCreatedBy", fields: [createdById], references: [id])
+
+  users       SubjectUser[]
+  groups      Group[]
+  assignments Assignment[]
+}
+
+model SubjectUser {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  subjectId  String
+  enrolledAt DateTime @default(now())
+
+  @@unique([userId, subjectId])
+}
+
+model Group {
+  id          String     @id @default(uuid())
+  groupName   String
+  subject     Subject    @relation(fields: [subjectId], references: [id])
+  subjectId   String
+  createdById String
+  createdBy   User       @relation("GroupCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime   @default(now())
+
+  users       GroupUser[]
+  assignments Assignment[]
+}
+
+model GroupUser {
+  id       String @id @default(uuid())
+  group    Group  @relation(fields: [groupId], references: [id])
+  groupId  String
+  user     User   @relation(fields: [userId], references: [id])
+  userId   String
+
+  @@unique([groupId, userId])
+}
+
+model MasterAssignment {
+  id        String    @id @default(uuid())
+  title     String
+  detail    String?
+  createdAt DateTime  @default(now())
+
+  assignments Assignment[]
+}
+
+model Assignment {
+  id                     String            @id @default(uuid())
+  context                String
+  type                   AssignmentType
+  submissionAssignmentId String?   
+
+  statusSubmission       SubmissionStatus?
+  statusReview           ReviewStatus?
+  createdAt              DateTime          @default(now())
+
+  masterAssignment       MasterAssignment  @relation(fields: [masterAssignmentId], references: [id])
+  masterAssignmentId     String
+
+  user                   User?             @relation(fields: [userId], references: [id])
+  userId                 String?
+
+  group                  Group?            @relation(fields: [groupId], references: [id])
+  groupId                String?
+
+  subject                Subject           @relation(fields: [subjectId], references: [id])
+  subjectId              String
+
+  reviews                Review[]
+}
+
+model Review {
+  id           String      @id @default(uuid())
+  assignment   Assignment  @relation(fields: [assignmentId], references: [id])
+  assignmentId String
+  user         User        @relation(fields: [userId], references: [id])
+  userId       String
+  createdAt    DateTime    @default(now())
+
+  comments     Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  review    Review   @relation(fields: [reviewId], references: [id])
+  reviewId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
