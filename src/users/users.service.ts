@@ -19,8 +19,12 @@ export class UsersService {
     return this.usersRepository.getUsers();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(id: string) {
+    return this.usersRepository.getUser(id);
+  }
+
+  findFromFirebaseOne(id: string) {
+    return this.usersRepository.getUserFromFirebase(id);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

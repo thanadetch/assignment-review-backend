@@ -31,7 +31,12 @@ export class UsersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOne(id);
+  }
+
+  @Get('firebase/:id')
+  findFromFirebaseOne(@Param('firebaseId') firebaseId: string) {
+    return this.usersService.findFromFirebaseOne(firebaseId);
   }
 
   @Patch(':id')

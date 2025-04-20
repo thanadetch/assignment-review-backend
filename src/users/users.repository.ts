@@ -12,6 +12,18 @@ export class UsersRepository {
     return this.prisma.user.findMany();
   }
 
+  async getUser(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+    });
+  }
+
+  async getUserFromFirebase(firebaseId: string) {
+    return this.prisma.user.findUnique({
+      where: { firebaseId },
+    });
+  }
+
   async createUser(data: Prisma.UserCreateInput) {
     return this.prisma.user.create({
       data,
