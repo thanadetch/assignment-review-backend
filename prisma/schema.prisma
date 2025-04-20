@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -15,14 +10,14 @@ datasource db {
 }
 
 model User {
-  id        String @id @default(uuid())
-  email     String @unique
+  id        String   @id @default(uuid())
+  email     String   @unique
   password  String
   firstName String
   lastName  String
-  role      Role   @default(STUDENT)
+  role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // Relation
   groupId      Int? // might not be in the group at first
@@ -32,14 +27,13 @@ model User {
   Comment      Comment[]
   Notification Notification[]
   Review       Review[]
-
 }
 
 model Group {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // Relation
   users      User[]
@@ -47,35 +41,38 @@ model Group {
 }
 
 model Subject {
-  id    String @id @default(uuid())
-  name  String @unique
+  id        String   @id @default(uuid())
+  name      String   @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // Relation
-  users User[]
+  masterAssignments MasterAssignment[]
+  users             User[]
 }
 
 model MasterAssignment {
-  id     String @id @default(uuid())
-  title  String
-  detail String
+  id        String   @id @default(uuid())
+  title     String
+  detail    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  //Relation
+  // Relation
+  subjectId   String
+  subject     Subject      @relation(fields: [subjectId], references: [id])
   assignments Assignment[]
 }
 
 model Assignment {
-  id                   String  @id @default(uuid())
+  id                   String   @id @default(uuid())
   content              String
   previousAssignmentId String?
   status               Status
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
 
-  //Relation
+  // Relation
   masterId         String
   masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])
   userId           String?
@@ -86,12 +83,12 @@ model Assignment {
 }
 
 model Review {
-  id      String @id @default(uuid())
-  content String
+  id        String   @id @default(uuid())
+  content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  //Relation
+  // Relation
   assignmentId String
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   userId       String
@@ -100,12 +97,12 @@ model Review {
 }
 
 model Comment {
-  id      String @id @default(uuid())
-  content String
+  id        String   @id @default(uuid())
+  content   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
-  //Relation
+  // Relation
   reviewId String
   review   Review @relation(fields: [reviewId], references: [id])
   userId   String
@@ -113,12 +110,14 @@ model Comment {
 }
 
 model Notification {
-  id      String @id @default(uuid())
-  content String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  id        String           @id @default(uuid())
+  content   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @default(now()) @updatedAt
 
-  //Relation
+  // Relation
   userId String
   user   User   @relation(fields: [userId], references: [id])
 }
@@ -135,4 +134,11 @@ enum Status {
   IN_REVIEW
   REVIEWED
   COMPLETED
+}
+
+enum NotificationType {
+  DUE_DATE
+  ASSIGN_REVIEW
+  COMMENT
+  REVIEWED
 }
