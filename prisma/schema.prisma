@@ -13,9 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  STUDENT
+  INSTRUCTOR
+}
+
 model User {
-  id        String @id @default(uuid())
-  email     String @unique
-  firstName String
-  lastName  String
+  id         String @id @default(uuid())
+  firebaseId String @unique
+  email      String @unique
+  firstName  String
+  lastName   String
+  role       Role
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }

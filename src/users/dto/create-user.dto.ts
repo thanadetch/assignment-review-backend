@@ -1,5 +1,6 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -14,4 +15,12 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   lastName: string;
+
+  @ApiProperty()
+  @IsString()
+  firebaseId: string;
+
+  @ApiProperty()
+  @IsEnum(Role)
+  role;
 }
