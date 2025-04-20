@@ -23,8 +23,8 @@ export class UsersService {
     return this.usersRepository.getUser(id);
   }
 
-  findFromFirebaseOne(id: string) {
-    return this.usersRepository.getUserFromFirebase(id);
+  findFromFirebaseOne(firebaseId: string) {
+    return this.usersRepository.getUserFromFirebase(firebaseId);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
