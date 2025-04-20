@@ -64,18 +64,6 @@ The application automatically runs migrations during startup and will be availab
 Access the API documentation at:
 http://localhost:3000/api
 
-## Additional Commands
-
-- Reset the database:
-  ```bash
-  npm run prisma:migrate:reset
-  ```
-
-- Generate Prisma client after schema changes:
-  ```bash
-  npx prisma generate
-  ```
-
 ---
 
 # Schema Changes Workflow
