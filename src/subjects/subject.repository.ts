@@ -42,11 +42,36 @@ export class SubjectRepository {
   }
 
   async findStudentsBySubjectId(subjectId: string) {
-    return this.prisma.subjectEnrollment.findMany({
-      where: { subjectId },
-      include: {
-        user: true,
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: subjectId },
+      select: {
+        id: true,
+        name: true,
       },
     });
+
+    const enrollments = await this.prisma.subjectEnrollment.findMany({
+      where: { subjectId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    const users = enrollments.map((e) => e.user);
+
+    return {
+      subject,
+      users,
+    };
   }
 }
