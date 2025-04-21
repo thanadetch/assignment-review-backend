@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Redirect, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
@@ -25,6 +25,7 @@ export class AuthController {
 
   @Get('callback')
   @UseGuards(GithubGuard)
+  @Redirect()
   githubAuthCallback(@Req() req: Request) {
     return this.authService.loginWithGithub(
       req.user as { email: string; role: string },

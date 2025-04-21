@@ -52,8 +52,9 @@ export class AuthService {
   }
 
   loginWithGithub(user: { email: string; role: string }) {
+    const access_token = this.jwtService.sign(user);
     return {
-      access_token: this.jwtService.sign(user),
+      url: `${process.env.FE_URL}/login?token=${access_token}`,
     };
   }
 }
