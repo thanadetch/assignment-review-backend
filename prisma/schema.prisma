@@ -17,14 +17,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
-  groupId      Int? // might not be in the group at first
-  group        Group?         @relation(fields: [groupId], references: [id])
-  subjects     Subject[]
-  assignment   Assignment[]
-  Comment      Comment[]
-  Notification Notification[]
-  Review       Review[]
+  groupId      Int?       // might not be in the group at first
+  group        Group?     @relation(fields: [groupId], references: [id])
+  assignments  Assignment[]
+  comments     Comment[]
+  notifications Notification[]
+  reviews      Review[]
+  subjectEnrollments SubjectEnrollment[]
 }
 
 model Group {
@@ -33,9 +32,8 @@ model Group {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
   users      User[]
-  assignment Assignment[]
+  assignments Assignment[]
 }
 
 model Subject {
@@ -44,9 +42,18 @@ model Subject {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
   masterAssignments MasterAssignment[]
-  users             User[]
+  subjectEnrollments SubjectEnrollment[]
+}
+
+model SubjectEnrollment {
+  subjectId String
+  userId    String
+
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@id([subjectId, userId])
 }
 
 model MasterAssignment {
@@ -56,7 +63,6 @@ model MasterAssignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
   subjectId   String
   subject     Subject      @relation(fields: [subjectId], references: [id])
   assignments Assignment[]
@@ -70,7 +76,6 @@ model Assignment {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @default(now()) @updatedAt
 
-  // Relation
   masterId         String
   masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])
   userId           String?
@@ -86,12 +91,11 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
   assignmentId String
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   userId       String
   user         User       @relation(fields: [userId], references: [id])
-  Comment      Comment[]
+  comments     Comment[]
 }
 
 model Comment {
@@ -100,7 +104,6 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  // Relation
   reviewId String
   review   Review @relation(fields: [reviewId], references: [id])
   userId   String
@@ -115,7 +118,6 @@ model Notification {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @default(now()) @updatedAt
 
-  // Relation
   userId String
   user   User   @relation(fields: [userId], references: [id])
 }

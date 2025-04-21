@@ -14,18 +14,21 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import * as process from 'node:process';
 import { GroupsModule } from './groups/groups.module';
 import { OtpModule } from './otp/otp.module';
+import { SubjectModule } from './subjects/subject.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     GroupsModule,
     UsersModule,
+    SubjectModule,
     AuthModule,
     ReviewModule,
     CommentModule,
     AssignmentModule,
     NotificationModule,
     EmailModule,
+    OtpModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',
@@ -35,7 +38,6 @@ import { OtpModule } from './otp/otp.module';
         },
       },
     }),
-    OtpModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

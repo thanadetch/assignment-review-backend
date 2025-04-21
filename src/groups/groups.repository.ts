@@ -24,7 +24,7 @@ export class GroupRepository {
     return this.prisma.group.findMany({
       include: {
         users: true,
-        assignment: true,
+        assignments: true,
       },
     });
   }
@@ -34,7 +34,7 @@ export class GroupRepository {
       where: { id },
       include: {
         users: true,
-        assignment: true,
+        assignments: true,
       },
     });
   }
