@@ -27,8 +27,9 @@ export class NotificationService {
     const html = strategy.getHtml(); // Get HTML from the strategy
 
     await this.notificationRepository.create({
-      userId:user.id,
+      userId: user.id,
       content,
+      type,
     });
 
     await this.emailService.sendEmail(user.email, subject, content, html);
