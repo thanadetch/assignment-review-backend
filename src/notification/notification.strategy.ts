@@ -1,4 +1,4 @@
-import { NotificationType } from '../common/enums/notification.enum';
+import { NotificationType } from '@prisma/client';
 
 interface NotificationStrategy {
   getSubject(): string;
@@ -74,7 +74,6 @@ class ReviewedNotificationStrategy implements NotificationStrategy {
   }
 }
 
-// A factory or helper to get the correct strategy based on type
 export class NotificationStrategyFactory {
   getStrategy(
     type: NotificationType,

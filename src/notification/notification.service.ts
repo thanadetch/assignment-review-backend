@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationType } from '../common/enums/notification.enum';
 import { EmailService } from '../email/email.service';
 import { UsersService } from '../users/users.service';
 import { NotificationRepository } from './notification.repository';
 import { NotificationData, NotificationStrategyFactory } from './notification.strategy';
-
+import { NotificationType } from '@prisma/client';
 @Injectable()
 export class NotificationService {
   constructor(
@@ -18,7 +17,6 @@ export class NotificationService {
     if (!user) {
       throw new Error('User not found');
     }
-
     const strategyFactory = new NotificationStrategyFactory();
     const strategy = strategyFactory.getStrategy(type, data);
 

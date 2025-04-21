@@ -1,13 +1,25 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { GithubGuard } from './guards/github.guard';
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('register')
   async register(@Body() req: CreateUserDto) {
@@ -25,9 +37,20 @@ export class AuthController {
 
   @Get('callback')
   @UseGuards(GithubGuard)
-  githubAuthCallback(@Req() req: Request) {
-    return this.authService.loginWithGithub(
+  githubAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const token = this.authService.loginWithGithub(
       req.user as { email: string; role: string },
     );
+    const frontendBaseUrl = this.configService.get<string>('FRONTEND_URL');
+    const redirectUrl = `${frontendBaseUrl}/login?token=${token}`;
+    console.log('hit call back');
+    res.redirect(redirectUrl);
+  }
+
+  @Get('redirect')
+  test(@Req() req: Request, @Res() res: Response) {
+    const frontendBaseUrl = this.configService.get<string>('FRONTEND_URL');
+    const redirectUrl = `${frontendBaseUrl}/login`;
+    res.redirect(redirectUrl);
   }
 }

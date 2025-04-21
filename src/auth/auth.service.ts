@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { Role } from '../common/enums/roles.enum';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -52,8 +52,6 @@ export class AuthService {
   }
 
   loginWithGithub(user: { email: string; role: string }) {
-    return {
-      access_token: this.jwtService.sign(user),
-    };
+    return  this.jwtService.sign(user);
   }
 }

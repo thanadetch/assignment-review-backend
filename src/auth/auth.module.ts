@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import * as process from 'node:process';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { GithubStrategy } from './strategies/github.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, GithubStrategy],
+  providers: [AuthService, JwtStrategy, GithubStrategy, ConfigService],
 })
 export class AuthModule {}
