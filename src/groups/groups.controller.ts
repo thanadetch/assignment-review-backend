@@ -12,7 +12,7 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { AddGroupMemberDto } from './dto/add-members-group-dto';
 import { RemoveGroupMemberDto } from './dto/delete-members-group-dto';
 
-@Controller('groups')
+@Controller('group')
 export class GroupsController {
   constructor(private readonly groupsService: GroupService) {}
 

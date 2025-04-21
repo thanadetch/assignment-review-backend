@@ -13,12 +13,14 @@ import { EmailModule } from './email/email.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import * as process from 'node:process';
 import { GroupsModule } from './groups/groups.module';
+import { SubjectModule } from './subjects/subject.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     GroupsModule,
     UsersModule,
+    SubjectModule,
     AuthModule,
     ReviewModule,
     CommentModule,
