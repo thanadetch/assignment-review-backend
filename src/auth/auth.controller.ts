@@ -14,6 +14,7 @@ import { GithubGuard } from './guards/github.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ValidateOtp } from './dto/validate-otp.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,13 @@ export class AuthController {
   @Post('login')
   async login(@Body() req: LoginDto) {
     return this.authService.login(req);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  getProfile(@Req() req: Request) {
+    const user = req.user as { email: string; role: string };
+    return this.authService.getProfile(user.email)
   }
 
   @Get('github')

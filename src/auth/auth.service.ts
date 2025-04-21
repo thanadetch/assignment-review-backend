@@ -40,6 +40,16 @@ export class AuthService {
     };
   }
 
+  async getProfile(email: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      return { message: 'User not found' };
+    }
+    const { role, firstName, lastName } = user;
+
+    return { email, role, firstName, lastName };
+  }
+
   async validateGithubUser(email: string, name: string) {
     let user = await this.userService.findByEmail(email);
     if (!user) {
@@ -66,7 +76,7 @@ export class AuthService {
     }
     const payload = { email: user.email, role: user.role.toString() };
     return {
-      access_token: this.jwtService.sign(payload)
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
