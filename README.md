@@ -27,17 +27,17 @@ This guide explains how to set up and run the project with a PostgreSQL database
 
 2. Update values in `.env` (These are real values for dev on local):
    ```
-   PORT=3000
-    DB_USER=review_user
-    DB_PASSWORD=review_pass
-    DB_NAME=review_db
-    DATABASE_URL="postgresql://review_user:review_pass@localhost:5432/review_db"
-    JWT_SECRET=secret
-    GITHUB_CLIENT_ID=Ov23lizrkbyiUW4hal3G
-    GITHUB_CLIENT_SECRET=40a913601eb8a3d899580a6854f222be4a81bd8b
-    GITHUB_CALLBACK_URL=http://localhost:3000/auth/callback
-    EMAIL_PASS=umjs goan hypu uwlj
-    EMAIL_FROM=tptpatiphon@gmail.com
+   PORT=3001
+   DB_USER=review_user
+   DB_PASSWORD=review_pass
+   DB_NAME=review_db
+   DATABASE_URL="postgresql://review_user:review_pass@localhost:5432/review_db"
+   JWT_SECRET=secret
+   GITHUB_CLIENT_ID=Ov23lizrkbyiUW4hal3G
+   GITHUB_CLIENT_SECRET=40a913601eb8a3d899580a6854f222be4a81bd8b
+   GITHUB_CALLBACK_URL=http://localhost:3000/auth/callback
+   EMAIL_PASS=umjs goan hypu uwlj
+   EMAIL_FROM=tptpatiphon@gmail.com
    ```
 
 3. Start PostgreSQL in Docker:
