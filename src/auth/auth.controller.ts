@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { GithubGuard } from './guards/github.guard';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ValidateOtp } from './dto/validate-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,20 +38,17 @@ export class AuthController {
 
   @Get('callback')
   @UseGuards(GithubGuard)
-  githubAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const token = this.authService.loginWithGithub(
-      req.user as { email: string; role: string },
-    );
+  async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as { email: string; role: string };
+    const ref = await this.authService.generateOtp(user.email);
+
     const frontendBaseUrl = this.configService.get<string>('FRONTEND_URL');
-    const redirectUrl = `${frontendBaseUrl}/login?token=${token}`;
-    console.log('hit call back');
+    const redirectUrl = `${frontendBaseUrl}/otp?ref=${ref}`;
     res.redirect(redirectUrl);
   }
 
-  @Get('redirect')
-  test(@Req() req: Request, @Res() res: Response) {
-    const frontendBaseUrl = this.configService.get<string>('FRONTEND_URL');
-    const redirectUrl = `${frontendBaseUrl}/login`;
-    res.redirect(redirectUrl);
+  @Post('validate-otp')
+  async validateOtp(@Body() req: ValidateOtp) {
+    return this.authService.validateOtp(req)
   }
 }

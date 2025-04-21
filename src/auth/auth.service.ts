@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Role } from '@prisma/client';
+import { OtpService } from '../otp/otp.service';
+import { ValidateOtp } from './dto/validate-otp.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private otpService: OtpService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
@@ -51,7 +54,19 @@ export class AuthService {
     return user;
   }
 
-  loginWithGithub(user: { email: string; role: string }) {
-    return  this.jwtService.sign(user);
+  async generateOtp(email: string) {
+    return this.otpService.generateOtp(email);
+  }
+
+  async validateOtp(req: ValidateOtp) {
+    const userEmail = await this.otpService.challengeOtp(req.code, req.ref);
+    const user = await this.userService.findByEmail(userEmail);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    const payload = { email: user.email, role: user.role.toString() };
+    return {
+      access_token: this.jwtService.sign(payload)
+    };
   }
 }

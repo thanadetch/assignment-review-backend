@@ -13,6 +13,7 @@ import { EmailModule } from './email/email.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import * as process from 'node:process';
 import { GroupsModule } from './groups/groups.module';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { GroupsModule } from './groups/groups.module';
         },
       },
     }),
+    OtpModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

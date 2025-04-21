@@ -120,6 +120,13 @@ model Notification {
   user   User   @relation(fields: [userId], references: [id])
 }
 
+model OtpChallenge {
+  id       String   @id @default(uuid())
+  otpCode  String
+  email    String
+  ref      String   @unique
+}
+
 enum Role {
   STUDENT
   INSTRUCTOR
