@@ -12,11 +12,12 @@ import { NotificationModule } from './notification/notification.module';
 import { EmailModule } from './email/email.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import * as process from 'node:process';
-
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    GroupsModule,
     UsersModule,
     AuthModule,
     ReviewModule,
@@ -29,10 +30,10 @@ import * as process from 'node:process';
         host: 'smtp.gmail.com',
         auth: {
           user: process.env.EMAIL_FROM,
-          pass: process.env.EMAIL_PASS
-        }
-      }
-    })
+          pass: process.env.EMAIL_PASS,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
