@@ -3,7 +3,8 @@ import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto';
 import { AssignmentsRepository } from './assignments.repository';
 import { UpdateAssignmentStatusDto } from './dto/update-assignment-status.dto';
-import { Assignment } from '@prisma/client';
+import { Assignment, AssignmentType, Status } from '@prisma/client';
+import { AssignReviewersDto } from './dto/assign-reviewers.dto';
 
 @Injectable()
 export class AssignmentsService {
@@ -35,7 +36,51 @@ export class AssignmentsService {
     return this.repository.remove(id);
   }
 
-  async updateStatus(id: string, updateStatusDto: UpdateAssignmentStatusDto): Promise<Assignment> {
+  async updateStatus(
+    id: string,
+    updateStatusDto: UpdateAssignmentStatusDto,
+  ): Promise<Assignment> {
     return this.repository.update(id, { status: updateStatusDto.status });
+  }
+
+  async getReviewById(id: string) {
+    return this.repository.findReviewById(id);
+  }
+
+  async getReviewers(assignmentId: string) {
+    return this.repository.findReviewersByAssignmentId(assignmentId);
+  }
+
+  async assignReviewers(assignmentId: string, dto: AssignReviewersDto) {
+    const submission = await this.findOne(assignmentId);
+    if (!submission) {
+      throw new NotFoundException('Submission not found');
+    }
+
+    const reviewAssignments = await Promise.all(
+      dto.reviewerIds.map((userId) =>
+        this.repository.create({
+          type: AssignmentType.REVIEW,
+          content: '',
+          status: Status.ASSIGNED,
+          masterId: submission.masterId,
+          userId,
+        }),
+      ),
+    );
+
+    return Promise.all(
+      reviewAssignments.map((reviewAssignment) =>
+        this.repository.assignReview(reviewAssignment.id, assignmentId),
+      ),
+    );
+  }
+
+  async assignRandomReviewers(subjectId: string) {
+    return this.repository.assignRandomReviewers(subjectId);
+  }
+
+  async assignRandomGroupReviewers(subjectId: string) {
+    return this.repository.assignRandomGroupReviewers(subjectId);
   }
 }
