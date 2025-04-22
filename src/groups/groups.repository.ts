@@ -29,7 +29,7 @@ export class GroupRepository {
     });
   }
 
-  async findById(id: number) {
+  async findById(id: string) {
     return this.prisma.group.findUnique({
       where: { id },
       include: {
@@ -39,7 +39,7 @@ export class GroupRepository {
     });
   }
 
-  async addMembers(groupId: number, userIds: string[]) {
+  async addMembers(groupId: string, userIds: string[]) {
     return this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -53,7 +53,7 @@ export class GroupRepository {
     });
   }
 
-  async removeMembers(groupId: number, userIds: string[]) {
+  async removeMembers(groupId: string, userIds: string[]) {
     return this.prisma.group.update({
       where: { id: groupId },
       data: {
@@ -67,7 +67,7 @@ export class GroupRepository {
     });
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     return this.prisma.group.delete({
       where: { id },
     });

@@ -11,6 +11,8 @@ import { Prisma } from '@prisma/client';
 import { GroupService } from '../groups/groups.service';
 import { JwtPayload } from './strategies/jwt.strategy';
 
+const DEFAULT_GROUP_ID = '170e618c-829d-4cff-a84b-1e3320266ba8'; // Group Z
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -60,10 +62,9 @@ export class AuthService {
   }
 
   async validateGithubUser(email: string, name: string) {
-    const defaultGroupId = 5;
     const user = await this.userService.findByEmail(email);
     if (!user) {
-      return await this.createNewStudent(defaultGroupId, email, name);
+      return await this.createNewStudent(email, name);
     }
     return {
       email: email,
@@ -95,18 +96,17 @@ export class AuthService {
   }
 
   private async createNewStudent(
-    defaultGroupId: number,
     email: string,
     name: string,
   ) {
-    const group = await this.groupService.findOne(defaultGroupId); // just assign first then change later
+    const group = await this.groupService.findOne(DEFAULT_GROUP_ID); // just assign first then change later
     const createdUser = await this.userService.create({
       email,
       password: '',
       firstName: name,
       lastName: '',
       role: Role.STUDENT,
-      groupId: defaultGroupId,
+      groupId: DEFAULT_GROUP_ID,
     });
     return {
       email: email,

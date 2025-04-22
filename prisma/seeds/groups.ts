@@ -6,31 +6,31 @@ export async function seedGroups(prisma: PrismaClient) {
     const now = new Date();
     const groups: Group[] = [
       {
-        id: 1,
+        id: 'ffe643da-1cc1-4935-86f6-ab02f464f6c7',
         name: 'A',
         createdAt: now,
         updatedAt: now,
       },
       {
-        id: 2,
+        id: '78f64c38-e7c8-4488-ac31-3748d579a5a2',
         name:  'B',
         createdAt: now,
         updatedAt: now,
       },
       {
-        id: 3,
+        id: '9b5b8f57-f4f8-4960-ab77-cef0626b0c4c',
         name: 'C',
         createdAt: now,
         updatedAt: now,
       },
       {
-        id: 4,
+        id: '71ef48f7-1b0d-402e-8cf3-418ebd0f819b',
         name: 'D',
         createdAt: now,
         updatedAt: now,
       },
       {
-        id: 5,
+        id: '170e618c-829d-4cff-a84b-1e3320266ba8',
         name: 'Z',
         createdAt: now,
         updatedAt: now,

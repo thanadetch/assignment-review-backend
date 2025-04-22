@@ -5,7 +5,6 @@ import {
   Param,
   Body,
   Delete,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { GroupService } from './groups.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -14,7 +13,8 @@ import { RemoveGroupMemberDto } from './dto/delete-members-group-dto';
 
 @Controller('group')
 export class GroupsController {
-  constructor(private readonly groupsService: GroupService) {}
+  constructor(private readonly groupsService: GroupService) {
+  }
 
   @Post()
   create(@Body() dto: CreateGroupDto) {
@@ -27,18 +27,18 @@ export class GroupsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: string) {
     return this.groupsService.findOne(id);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
+  delete(@Param('id') id: string) {
     return this.groupsService.delete(id);
   }
 
   @Post(':id/join')
   addMembers(
-    @Param('id', ParseIntPipe) groupId: number,
+    @Param('id') groupId: string,
     @Body() dto: AddGroupMemberDto,
   ) {
     return this.groupsService.addMembers(groupId, dto);
@@ -46,7 +46,7 @@ export class GroupsController {
 
   @Delete(':id/join')
   removeMembers(
-    @Param('id', ParseIntPipe) groupId: number,
+    @Param('id') groupId: string,
     @Body() dto: RemoveGroupMemberDto,
   ) {
     return this.groupsService.removeMembers(groupId, dto);
