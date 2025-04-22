@@ -6,15 +6,22 @@ import {
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import * as process from 'node:process';
+import { UsersService } from '../../users/users.service';
+import { GroupService } from '../../groups/groups.service';
 
-interface JwtPayload {
+export interface JwtPayload {
   email: string;
   role: string;
+  group: string;
+  userId: string;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(
+    private readonly userService: UsersService,
+    private readonly groupService: GroupService,
+  ) {
     const secret = process.env.JWT_SECRET;
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -24,6 +31,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: JwtPayload) {
-    return { email: payload.email, role: payload.role };
+    return {
+      email: payload.email,
+      role: payload.role,
+      group: payload.group,
+      userId: payload.userId,
+    };
   }
 }

@@ -15,6 +15,7 @@ import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { ValidateOtp } from './dto/validate-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtPayload } from './strategies/jwt.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +37,7 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: Request) {
-    const user = req.user as { email: string; role: string };
+    const user = req.user as JwtPayload;
     return this.authService.getProfile(user.email)
   }
 
@@ -47,7 +48,7 @@ export class AuthController {
   @Get('callback')
   @UseGuards(GithubGuard)
   async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
-    const user = req.user as { email: string; role: string };
+    const user = req.user as JwtPayload;
     const ref = await this.authService.generateOtp(user.email);
 
     const frontendBaseUrl = this.configService.get<string>('FRONTEND_URL');

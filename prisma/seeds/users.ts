@@ -1,6 +1,7 @@
 import { PrismaClient, User } from '@prisma/client';
 
-export const users: User[] = [];
+export const users: User[] = [
+];
 
 export async function seedUsers(prisma: PrismaClient) {
   try {

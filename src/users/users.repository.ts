@@ -8,16 +8,36 @@ export class UsersRepository {
     this.prisma = prisma;
   }
 
-  async createUser(data: Prisma.UserCreateInput) {
+  async createUser(data: Prisma.UserUncheckedCreateInput) {
     return this.prisma.user.create({
       data,
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        group: true,
+      },
     });
   }
 
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },
-    })
+      include: {
+        group: true,
+      },
+    });
   }
 
+  async updateById(id: string, data: Prisma.UserUncheckedUpdateInput) {
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
 }

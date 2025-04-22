@@ -8,5 +8,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 @Module({
   controllers: [GroupsController],
   providers: [GroupService, GroupRepository, PrismaService],
+  exports: [GroupService]
 })
 export class GroupsModule {}

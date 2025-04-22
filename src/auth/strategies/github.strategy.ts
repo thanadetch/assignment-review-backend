@@ -39,13 +39,10 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     if (!githubUser.email) {
       throw new Error();
     }
-    const user = await this.authService.validateGithubUser(
+    const payload = await this.authService.validateGithubUser(
       githubUser.email,
       githubUser.displayName,
     );
-    done(null, {
-      email: user.email,
-      role: user.role,
-    });
+    done(null, payload);
   }
 }

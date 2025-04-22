@@ -17,12 +17,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  groupId      Int?       // might not be in the group at first
-  group        Group?     @relation(fields: [groupId], references: [id])
-  assignments  Assignment[]
-  comments     Comment[]
-  notifications Notification[]
-  reviews      Review[]
+  groupId            Int? // might not be in the group at first
+  group              Group?              @relation(fields: [groupId], references: [id])
+  assignments        Assignment[]
+  comments           Comment[]
+  notifications      Notification[]
+  reviews            Review[]
   subjectEnrollments SubjectEnrollment[]
 }
 
@@ -32,7 +32,7 @@ model Group {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  users      User[]
+  users       User[]
   assignments Assignment[]
 }
 
@@ -42,7 +42,7 @@ model Subject {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  masterAssignments MasterAssignment[]
+  masterAssignments  MasterAssignment[]
   subjectEnrollments SubjectEnrollment[]
 }
 
@@ -50,8 +50,8 @@ model SubjectEnrollment {
   subjectId String
   userId    String
 
-  subject   Subject @relation(fields: [subjectId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   @@id([subjectId, userId])
 }
@@ -101,6 +101,7 @@ model Review {
 model Comment {
   id        String   @id @default(uuid())
   content   String
+  replyTo   String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -123,10 +124,10 @@ model Notification {
 }
 
 model OtpChallenge {
-  id       String   @id @default(uuid())
-  otpCode  String
-  email    String
-  ref      String   @unique
+  id      String @id @default(uuid())
+  otpCode String
+  email   String
+  ref     String @unique
 }
 
 enum Role {

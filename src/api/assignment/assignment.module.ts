@@ -4,6 +4,7 @@ import { NotificationModule } from '../../notification/notification.module';
 
 @Module({
   imports: [NotificationModule],
-  providers: [AssignmentService]
+  providers: [AssignmentService],
+  exports: [AssignmentService]
 })
 export class AssignmentModule {}

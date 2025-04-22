@@ -9,16 +9,18 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 import { ConfigService } from '@nestjs/config';
 import { OtpModule } from '../otp/otp.module';
+import { GroupsModule } from '../groups/groups.module';
 
 @Module({
   imports: [
     UsersModule,
+    GroupsModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
-    OtpModule
+    OtpModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, GithubStrategy, ConfigService],
