@@ -15,8 +15,8 @@ export class ReviewController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STUDENT)
-  async register(@Body() dto: CreateReviewDto, @Req() req: Request) {
+  async create(@Body() dto: CreateReviewDto, @Req() req: Request) {
     const user = req.user as JwtPayload;
-    return this.reviewService.createReview(dto, user);
+    return this.reviewService.create(dto, user);
   }
 }

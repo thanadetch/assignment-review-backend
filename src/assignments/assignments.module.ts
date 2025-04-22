@@ -7,6 +7,7 @@ import { AssignmentsRepository } from './assignments.repository';
 @Module({
   controllers: [AssignmentsController],
   providers: [AssignmentsService, PrismaService, AssignmentsRepository],
+  exports: [AssignmentsService]
 })
 export class AssignmentsModule {
 }

@@ -83,4 +83,12 @@ export class AssignmentsService {
   async assignRandomGroupReviewers(subjectId: string) {
     return this.repository.assignRandomGroupReviewers(subjectId);
   }
+
+  async getAssociatedUserIdsByAssignmentId(assignmentId: string): string[] {
+    //find the assignment check if type = review
+    //get assignees for both assignee
+    //get teacherIds
+    //combine and return
+  }
+
 }

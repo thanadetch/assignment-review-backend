@@ -12,13 +12,19 @@ export class ReviewRepository {
     });
   }
 
+  async findOne(id: string) {
+    return this.prismaService.review.findUnique({
+      where: { id }
+    });
+  }
+
   async findByAssignmentId(assignmentId: string) {
     return this.prismaService.review.findMany({
       where: {
         assignmentId,
       },
       include: {
-        comments: true
+        comments: true,
       },
     });
   }

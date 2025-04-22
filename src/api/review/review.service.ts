@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ReviewRepository } from './review.repository';
 import { NotificationService } from '../../notification/notification.service';
 import { Prisma } from '@prisma/client';
 import { UsersService } from '../../users/users.service';
 import { CreateReviewDto } from './dto/review.dto';
-import { AssignmentService } from '../assignment/assignment.service';
 import { JwtPayload } from '../../auth/strategies/jwt.strategy';
+import { AssignmentsService } from '../../assignments/assignments.service';
 
 @Injectable()
 export class ReviewService {
@@ -13,7 +13,7 @@ export class ReviewService {
     private readonly reviewRepository: ReviewRepository,
     private notificationService: NotificationService,
     private userService: UsersService,
-    private assignmentService: AssignmentService,
+    private assignmentService: AssignmentsService,
   ) {}
 
   getReviewsByAssignmentId(assignmentId: string, email: string) {
@@ -23,10 +23,18 @@ export class ReviewService {
     //get review and its comment
   }
 
-  async createReview(req: CreateReviewDto, userPayload: JwtPayload) {
+  async findById(id: string) {
+    return this.reviewRepository.findOne(id);
+  }
+
+  async create(req: CreateReviewDto, userPayload: JwtPayload) {
     //check permission
-    const { userId, group } = userPayload;
+    const { userId } = userPayload;
     //find assignment
+    const associatedUserIds:string[] = await this.assignmentService.getAssociatedUserIdsByAssignmentId(req.assignmentId)
+    if(!associatedUserIds.includes(userId)) {
+      throw new UnauthorizedException();
+    }
     //if assignment group name or userId = userId, groupName
     await this.reviewRepository.create({
       assignmentId: req.assignmentId,
@@ -35,4 +43,5 @@ export class ReviewService {
     });
     //then notify
   }
+
 }
