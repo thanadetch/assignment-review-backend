@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { Prisma } from '@prisma/client';
+import { th } from '@faker-js/faker';
 
 @Injectable()
 export class UsersService {
@@ -23,4 +24,8 @@ export class UsersService {
   async updateById(id: string, user: Prisma.UserUncheckedUpdateInput) {
     return this.usersRepository.updateById(id, user);
   }
-}
+
+  async findAll() {
+    return this.usersRepository.findAll();
+  }
+ }
