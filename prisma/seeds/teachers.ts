@@ -31,8 +31,8 @@ export async function seedTeachers(prisma: PrismaClient) {
     });
 
     await Promise.all(userUpsertPromises);
-    console.log('Users seeded successfully.');
+    console.log('Teachers seeded successfully.');
   } catch (error) {
-    console.error('Error seeding users:', error);
+    console.error('Error seeding teachers:', error);
   }
 }

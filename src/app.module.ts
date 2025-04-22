@@ -15,6 +15,7 @@ import * as process from 'node:process';
 import { GroupsModule } from './groups/groups.module';
 import { OtpModule } from './otp/otp.module';
 import { SubjectModule } from './subjects/subject.module';
+import { MasterAssignmentsModule } from './master-assignments/master-assignments.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SubjectModule } from './subjects/subject.module';
     NotificationModule,
     EmailModule,
     OtpModule,
+    MasterAssignmentsModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',
