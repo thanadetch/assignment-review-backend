@@ -16,6 +16,7 @@ import { GroupsModule } from './groups/groups.module';
 import { OtpModule } from './otp/otp.module';
 import { SubjectModule } from './subjects/subject.module';
 import { MasterAssignmentsModule } from './master-assignments/master-assignments.module';
+import { AssignmentsModule } from './assignments/assignments.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MasterAssignmentsModule } from './master-assignments/master-assignments
     EmailModule,
     OtpModule,
     MasterAssignmentsModule,
+    AssignmentsModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',

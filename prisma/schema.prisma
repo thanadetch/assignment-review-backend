@@ -69,12 +69,10 @@ model MasterAssignment {
 }
 
 model Assignment {
-  id                   String   @id @default(uuid())
-  content              String
-  previousAssignmentId String?
-  status               Status
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @default(now()) @updatedAt
+  id      String         @id @default(uuid())
+  type    AssignmentType
+  status  Status
+  content String
 
   masterId         String
   masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])
@@ -83,6 +81,25 @@ model Assignment {
   groupId          String?
   group            Group?           @relation(fields: [groupId], references: [id])
   reviews          Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  reviewerAssignment AssignmentReview[] @relation("reviewerAssignment")
+  reviewAssignment   AssignmentReview[] @relation("reviewAssignment")
+}
+
+model AssignmentReview {
+  id String @id @default(uuid())
+
+  reviewerAssignmentId String
+  reviewerAssignment   Assignment @relation("reviewerAssignment", fields: [reviewerAssignmentId], references: [id])
+
+  reviewAssignmentId String
+  reviewAssignment   Assignment @relation("reviewAssignment", fields: [reviewAssignmentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Review {
@@ -149,4 +166,9 @@ enum NotificationType {
   ASSIGN_REVIEW
   COMMENT
   REVIEWED
+}
+
+enum AssignmentType {
+  SUBMISSION
+  REVIEW
 }
