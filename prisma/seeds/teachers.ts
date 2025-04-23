@@ -17,6 +17,7 @@ export async function seedTeachers(prisma: PrismaClient) {
         password: pwd,
         createdAt: new Date(),
         updatedAt: new Date(),
+        subjectId: '550e8400-e29b-41d4-a716-446655440002',
         groupId : null,
       }
     ]

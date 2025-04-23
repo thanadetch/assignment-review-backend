@@ -14,6 +14,6 @@ export class UsersController {
   @Get('students')
   @Roles(Role.INSTRUCTOR)
   async getStudents(@Req() req: Request) {
-    return this.usersService.findAll()
+    return this.usersService.findStudents()
   }
 }

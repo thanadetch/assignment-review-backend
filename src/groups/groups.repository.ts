@@ -72,4 +72,12 @@ export class GroupRepository {
       where: { id },
     });
   }
+
+  async findMemberCount(groupId:string) {
+    return this.prisma.user.count({
+      where: {
+        groupId
+      }
+    })
+  }
 }

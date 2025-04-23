@@ -5,12 +5,13 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { ReviewRepository } from './review.repository';
 import { UsersModule } from '../../users/users.module';
 import { ReviewController } from './review.controller';
-import { AssignmentsModule } from '../../assignments/assignments.module';
+import { AssignmentModule } from '../assignment/assignment.module';
+import { GroupsModule } from '../../groups/groups.module';
 
 @Module({
-  imports: [NotificationModule, UsersModule, AssignmentsModule],
+  imports: [NotificationModule, UsersModule, AssignmentModule, GroupsModule],
   providers: [ReviewService, PrismaService, ReviewRepository],
   controllers: [ReviewController],
-  exports: [ReviewService]
+  exports: [ReviewService],
 })
 export class ReviewModule {}

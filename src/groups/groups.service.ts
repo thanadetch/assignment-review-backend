@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { GroupRepository } from './groups.repository';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { AddGroupMemberDto } from './dto/add-members-group-dto';
@@ -13,7 +13,8 @@ export class GroupService {
   }
 
   async findAll() {
-    return this.groupRepo.findAll();
+    const groups = await this.groupRepo.findAll()
+    return groups.filter(g => g.name != 'Z') // exclude temp group
   }
 
   async findOne(id: string) {
@@ -37,5 +38,16 @@ export class GroupService {
   async removeMembers(groupId: string, dto: RemoveGroupMemberDto) {
     await this.findOne(groupId);
     return this.groupRepo.removeMembers(groupId, dto.userIds);
+  }
+  
+  async findMemberCount(groupId: string) {
+    return this.groupRepo.findMemberCount(groupId);
+  }
+
+  async findAllMemberIds(groupId: string) {
+    const group = await this.groupRepo.findById(groupId)
+    if(!group) throw new BadRequestException();
+    const members = group.users
+    return members.map(member => member.id)
   }
 }

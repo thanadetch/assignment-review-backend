@@ -28,11 +28,11 @@ export class SubjectService {
   }
 
   async getUserSubjects(userId: string) {
-    return this.subjectRepo.findEnrollmentsByUser(userId);
+    // return this.subjectRepo.findEnrollmentsByUser(userId);
   }
 
   async getSubjectStudents(subjectId: string) {
     await this.findOne(subjectId);
-    return this.subjectRepo.findStudentsBySubjectId(subjectId);
+    // return this.subjectRepo.findStudentsBySubjectId(subjectId);
   }
 }

@@ -17,13 +17,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  groupId            String? // might not be in the group at first
-  group              Group?              @relation(fields: [groupId], references: [id])
-  assignments        Assignment[]
-  comments           Comment[]
-  notifications      Notification[]
-  reviews            Review[]
-  subjectEnrollments SubjectEnrollment[]
+  groupId       String? // might not be in the group at first
+  group         Group?         @relation(fields: [groupId], references: [id])
+  assignments   Assignment[]
+  comments      Comment[]
+  notifications Notification[]
+  reviews       Review[]
+  subjectId     String?
+  subject       Subject?       @relation(fields: [subjectId], references: [id])
 }
 
 model Group {
@@ -42,18 +43,8 @@ model Subject {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  masterAssignments  MasterAssignment[]
-  subjectEnrollments SubjectEnrollment[]
-}
-
-model SubjectEnrollment {
-  subjectId String
-  userId    String
-
-  subject Subject @relation(fields: [subjectId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-
-  @@id([subjectId, userId])
+  masterAssignments MasterAssignment[]
+  users             User[]
 }
 
 model MasterAssignment {
@@ -69,10 +60,11 @@ model MasterAssignment {
 }
 
 model Assignment {
-  id      String         @id @default(uuid())
-  type    AssignmentType
-  status  Status
-  content String
+  id                   String         @id @default(uuid())
+  type                 AssignmentType
+  status               Status
+  content              String
+  previousAssignmentId String?
 
   masterId         String
   masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])
@@ -81,22 +73,6 @@ model Assignment {
   groupId          String?
   group            Group?           @relation(fields: [groupId], references: [id])
   reviews          Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  reviewerAssignment AssignmentReview[] @relation("reviewerAssignment")
-  reviewAssignment   AssignmentReview[] @relation("reviewAssignment")
-}
-
-model AssignmentReview {
-  id String @id @default(uuid())
-
-  reviewerAssignmentId String
-  reviewerAssignment   Assignment @relation("reviewerAssignment", fields: [reviewerAssignmentId], references: [id])
-
-  reviewAssignmentId String
-  reviewAssignment   Assignment @relation("reviewAssignment", fields: [reviewAssignmentId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -118,7 +94,7 @@ model Review {
 model Comment {
   id        String   @id @default(uuid())
   content   String
-  replyTo   String
+  replyTo   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 

@@ -18,6 +18,18 @@ export class ReviewRepository {
     });
   }
 
+  async findBy(query: Prisma.ReviewWhereInput) {
+    return this.prismaService.review.findMany({
+      where: query
+    })
+  }
+
+  async countBy(query: Prisma.ReviewWhereInput) {
+    return this.prismaService.review.count({
+      where: query
+    })
+  }
+
   async findByAssignmentId(assignmentId: string) {
     return this.prismaService.review.findMany({
       where: {

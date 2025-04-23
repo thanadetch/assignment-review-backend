@@ -1,31 +1,42 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CommentRepository } from './comment.repository';
 import { JwtPayload } from '../../auth/strategies/jwt.strategy';
-import { AssignmentsService } from '../../assignments/assignments.service';
 import { CreateCommentDTO } from './dto/comment.dto';
 import { ReviewService } from '../review/review.service';
+import { AssignmentService } from '../assignment/assignment.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository,
-              private readonly assignmentService: AssignmentsService,
-              private readonly reviewService: ReviewService,) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly assignmentService: AssignmentService,
+    private readonly reviewService: ReviewService,
+  ) {}
 
   async create(req: CreateCommentDTO, user: JwtPayload) {
     const { content, replyTo, reviewId } = req;
-    //check permission
-    //user reviewId to find AssignmentId
+    const { userId } = user;
     const review = await this.reviewService.findById(reviewId);
-    const associatedUserIds = this.assignmentService.getAssociatedUserIdsByAssignmentId(review.assignmentId);
-    if(!associatedUserIds.includes(user.userId)) {
+    if (!review) throw new BadRequestException('Review does not exist');
+    const associatedUserIds =
+      await this.assignmentService.getAssociatedUserIdsByAssignmentId(
+        review.assignmentId,
+      );
+    if (!associatedUserIds.includes(userId)) {
       throw new UnauthorizedException();
     }
-    //find user or group
-    // if yes create
-    // notify ???
+
+    // TODO notify ???
     const comment = await this.commentRepository.create({
-      content,replyTo, reviewId
-    })
+      content,
+      replyTo,
+      reviewId,
+      userId,
+    });
     //notify
     return comment;
   }

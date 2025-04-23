@@ -1,17 +1,37 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { MasterAssignmentsService } from './master-assignments.service';
 import { CreateMasterAssignmentDto } from './dto/create-master-assignment.dto';
 import { UpdateMasterAssignmentDto } from './dto/update-master-assignment.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @ApiTags('master-assignments')
-@Controller('assignment/master')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.INSTRUCTOR)
+@Controller('master-assignments')
 export class MasterAssignmentsController {
-  constructor(private readonly masterAssignmentsService: MasterAssignmentsService) {}
+  constructor(
+    private readonly masterAssignmentsService: MasterAssignmentsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new master assignment' })
-  @ApiResponse({ status: 201, description: 'The master assignment has been successfully created.' })
+  @ApiResponse({
+    status: 201,
+    description: 'The master assignment has been successfully created.',
+  })
   create(@Body() createMasterAssignmentDto: CreateMasterAssignmentDto) {
     return this.masterAssignmentsService.create(createMasterAssignmentDto);
   }
@@ -32,7 +52,10 @@ export class MasterAssignmentsController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a master assignment' })
-  @ApiResponse({ status: 200, description: 'The master assignment has been successfully updated.' })
+  @ApiResponse({
+    status: 200,
+    description: 'The master assignment has been successfully updated.',
+  })
   @ApiResponse({ status: 404, description: 'Master assignment not found.' })
   update(
     @Param('id') id: string,
@@ -43,7 +66,10 @@ export class MasterAssignmentsController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a master assignment' })
-  @ApiResponse({ status: 200, description: 'The master assignment has been successfully deleted.' })
+  @ApiResponse({
+    status: 200,
+    description: 'The master assignment has been successfully deleted.',
+  })
   @ApiResponse({ status: 404, description: 'Master assignment not found.' })
   remove(@Param('id') id: string) {
     return this.masterAssignmentsService.remove(id);

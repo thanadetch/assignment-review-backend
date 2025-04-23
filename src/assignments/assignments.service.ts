@@ -3,7 +3,7 @@ import { CreateAssignmentDto } from './dto/create-assignment.dto';
 import { UpdateAssignmentDto } from './dto/update-assignment.dto';
 import { AssignmentsRepository } from './assignments.repository';
 import { UpdateAssignmentStatusDto } from './dto/update-assignment-status.dto';
-import { Assignment, AssignmentType, Status } from '@prisma/client';
+import { Assignment } from '@prisma/client';
 import { AssignReviewersDto } from './dto/assign-reviewers.dto';
 
 @Injectable()
@@ -57,23 +57,18 @@ export class AssignmentsService {
       throw new NotFoundException('Submission not found');
     }
 
-    const reviewAssignments = await Promise.all(
-      dto.reviewerIds.map((userId) =>
-        this.repository.create({
-          type: AssignmentType.REVIEW,
-          content: '',
-          status: Status.ASSIGNED,
-          masterId: submission.masterId,
-          userId,
-        }),
-      ),
-    );
-
-    return Promise.all(
-      reviewAssignments.map((reviewAssignment) =>
-        this.repository.assignReview(reviewAssignment.id, assignmentId),
-      ),
-    );
+    // const reviewAssignments = await Promise.all(
+    //   dto.reviewerIds.map((userId) =>
+    //     this.repository.create({
+    //       type: AssignmentType.REVIEW,
+    //       previousAssignmentId: assignmentId ,
+    //       content: '',
+    //       status: Status.ASSIGNED,
+    //       masterId: submission.masterId,
+    //       userId,
+    //     }),
+    //   ),
+    // );
   }
 
   async assignRandomReviewers(subjectId: string) {
@@ -84,11 +79,10 @@ export class AssignmentsService {
     return this.repository.assignRandomGroupReviewers(subjectId);
   }
 
-  async getAssociatedUserIdsByAssignmentId(assignmentId: string): string[] {
+  async getAssociatedUserIdsByAssignmentId(assignmentId: string) {
     //find the assignment check if type = review
     //get assignees for both assignee
     //get teacherIds
     //combine and return
   }
-
 }

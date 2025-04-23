@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { Prisma } from '@prisma/client';
-import { th } from '@faker-js/faker';
+import { Prisma, Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +24,12 @@ export class UsersService {
     return this.usersRepository.updateById(id, user);
   }
 
-  async findAll() {
-    return this.usersRepository.findAll();
+  async findStudents() {
+    return this.usersRepository.findAllFromTypes(Role.STUDENT);
+  }
+
+  async findInstructors() {
+    return this.usersRepository.findAllFromTypes(Role.INSTRUCTOR);
+
   }
  }

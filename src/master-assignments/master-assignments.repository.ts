@@ -1,16 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CreateMasterAssignmentDto } from './dto/create-master-assignment.dto';
-import { UpdateMasterAssignmentDto } from './dto/update-master-assignment.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class MasterAssignmentsRepository {
-  constructor(private prisma: PrismaService) {
-  }
+  constructor(private prisma: PrismaService) {}
 
-  async create(createDto: CreateMasterAssignmentDto) {
+  async create(data: Prisma.MasterAssignmentUncheckedCreateInput) {
     return this.prisma.masterAssignment.create({
-      data: createDto,
+      data,
       include: { subject: true },
     });
   }
@@ -28,10 +26,10 @@ export class MasterAssignmentsRepository {
     });
   }
 
-  async update(id: string, updateDto: UpdateMasterAssignmentDto) {
+  async update(id: string, data: Prisma.MasterAssignmentUncheckedUpdateInput) {
     return this.prisma.masterAssignment.update({
       where: { id },
-      data: updateDto,
+      data,
       include: { subject: true },
     });
   }

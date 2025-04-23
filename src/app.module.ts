@@ -7,7 +7,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ReviewModule } from './api/review/review.module';
 import { CommentModule } from './api/comment/comment.module';
-import { AssignmentModule } from './api/assignment/assignment.module';
 import { NotificationModule } from './notification/notification.module';
 import { EmailModule } from './email/email.module';
 import { MailerModule } from '@nestjs-modules/mailer';
@@ -16,7 +15,7 @@ import { GroupsModule } from './groups/groups.module';
 import { OtpModule } from './otp/otp.module';
 import { SubjectModule } from './subjects/subject.module';
 import { MasterAssignmentsModule } from './master-assignments/master-assignments.module';
-import { AssignmentsModule } from './assignments/assignments.module';
+import { AssignmentModule } from './api/assignment/assignment.module';
 
 @Module({
   imports: [
@@ -32,7 +31,6 @@ import { AssignmentsModule } from './assignments/assignments.module';
     EmailModule,
     OtpModule,
     MasterAssignmentsModule,
-    AssignmentsModule,
     MailerModule.forRoot({
       transport: {
         host: 'smtp.gmail.com',

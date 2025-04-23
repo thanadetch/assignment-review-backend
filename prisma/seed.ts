@@ -8,12 +8,10 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding database...');
-
-  await seedUsers(prisma);
-  await seedTeachers(prisma);
-  await seedGroups(prisma);
   await seedSubjects(prisma);
-
+  await seedGroups(prisma);
+  await seedTeachers(prisma);
+  // await seedUsers(prisma);
   console.log('Seeding completed.');
 }
 

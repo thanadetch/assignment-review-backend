@@ -90,14 +90,6 @@ export class AssignmentsRepository {
     });
   }
 
-  async assignReview(submissionId: string, reviewerAssignmentId: string) {
-    return this.prisma.assignmentReview.create({
-      data: {
-        reviewAssignmentId: submissionId,
-        reviewerAssignmentId,
-      },
-    });
-  }
 
   async assignRandomReviewers(subjectId: string) {
     const submissions =
@@ -125,7 +117,7 @@ export class AssignmentsRepository {
         },
       });
 
-      await this.assignReview(submission.id, reviewerAssignment.id);
+      // await this.assignReview(submission.id, reviewerAssignment.id);
       reviewAssignments.push(reviewerAssignment);
     }
 
@@ -157,7 +149,7 @@ export class AssignmentsRepository {
         },
       });
 
-      await this.assignReview(submission.id, reviewerAssignment.id);
+      // await this.assignReview(submission.id, reviewerAssignment.id);
       reviewAssignments.push(reviewerAssignment);
     }
 

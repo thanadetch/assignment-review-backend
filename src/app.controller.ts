@@ -31,8 +31,8 @@ export class AppController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('profile-instructor')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.INSTRUCTOR)
   async getProfileInstructor(@Req() req: Request) {
     const user = req.user as { email: string; role: Role };

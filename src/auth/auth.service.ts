@@ -43,8 +43,8 @@ export class AuthService {
     const payload = {
       email: user.email,
       role: user.role.toString(),
-      sub: user.id,
-      group: user?.group?.name.toString(),
+      group: user?.group?.id,
+      userId: user.id
     };
     return {
       access_token: this.jwtService.sign(payload),
@@ -69,7 +69,7 @@ export class AuthService {
     return {
       email: email,
       role: user.role,
-      group: user.group?.name,
+      group: user.group?.id,
       userId: user.id,
     } as JwtPayload;
   }
@@ -87,7 +87,7 @@ export class AuthService {
     const payload = {
       email: user.email,
       role: user.role.toString(),
-      group: user.group?.name,
+      group: user.group?.id,
       userId: user.id,
     } as JwtPayload;
     return {
@@ -100,6 +100,7 @@ export class AuthService {
     name: string,
   ) {
     const group = await this.groupService.findOne(DEFAULT_GROUP_ID); // just assign first then change later
+    const DEFAULT_SUBJECT_ID = '550e8400-e29b-41d4-a716-446655440002';
     const createdUser = await this.userService.create({
       email,
       password: '',
@@ -107,6 +108,7 @@ export class AuthService {
       lastName: '',
       role: Role.STUDENT,
       groupId: DEFAULT_GROUP_ID,
+      subjectId: DEFAULT_SUBJECT_ID // to default
     });
     return {
       email: email,
