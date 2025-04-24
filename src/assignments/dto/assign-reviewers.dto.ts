@@ -3,3 +3,7 @@ export class AssignReviewersDto {
   userId: string;
   isGroupAssignment: boolean;
 }
+
+export class ScoreAssignmentDto {
+  score: number;
+}

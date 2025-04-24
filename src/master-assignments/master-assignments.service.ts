@@ -17,9 +17,8 @@ export class MasterAssignmentsService {
   ) {}
 
   async create(dto: CreateMasterAssignmentDto) {
-    const { title, subjectId, detail} = dto
-    const master = await this.repository.create({ title, subjectId, detail});
-    const { isGroupAssignment } = dto;
+    const { title, subjectId, detail, isGroupAssignment, dueDate} = dto
+    const master = await this.repository.create({ title, subjectId, detail, dueDate, isGroupAssignment});
     if(isGroupAssignment) {
       const groups = await this.groupService.findAll();
       const data = groups.map(g => {

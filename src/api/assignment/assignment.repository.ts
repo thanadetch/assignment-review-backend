@@ -60,7 +60,7 @@ export class AssignmentRepository {
     });
   }
 
-  async findOne(id: string): Promise<Assignment | null> {
+  async findOne(id: string) {
     return this.prisma.assignment.findUnique({
       where: { id },
       include: {
@@ -75,6 +75,7 @@ export class AssignmentRepository {
         },
         group: true,
         user: true,
+        masterAssignment: true,
       }
     });
   }

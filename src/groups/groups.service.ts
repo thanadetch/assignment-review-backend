@@ -50,4 +50,11 @@ export class GroupService {
     const members = group.users
     return members.map(member => member.id)
   }
+
+  async findAllMemberEmails(groupId: string) {
+    const group = await this.groupRepo.findById(groupId)
+    if(!group) throw new BadRequestException();
+    const members = group.users
+    return members.map(member => member.email)
+  }
 }

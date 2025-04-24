@@ -4,9 +4,10 @@ import { EmailModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
 import { NotificationRepository } from './notification.repository';
 import { PrismaService } from '../../prisma/prisma.service';
+import { GroupsModule } from '../groups/groups.module';
 
 @Module({
-  imports: [EmailModule, UsersModule],
+  imports: [EmailModule, UsersModule, GroupsModule],
   providers: [NotificationService, NotificationRepository, PrismaService],
   exports: [NotificationService],
 })

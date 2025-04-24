@@ -5,9 +5,10 @@ import { AssignmentRepository } from './assignment.repository';
 import { GroupsModule } from '../../groups/groups.module';
 import { UsersModule } from '../../users/users.module';
 import { AssignmentService } from './assignment.service';
+import { NotificationModule } from '../../notification/notification.module';
 
 @Module({
-  imports: [GroupsModule, AssignmentModule, UsersModule],
+  imports: [GroupsModule, AssignmentModule, UsersModule, NotificationModule],
   controllers: [AssignmentController],
   providers: [AssignmentService, PrismaService, AssignmentRepository],
   exports: [AssignmentService],

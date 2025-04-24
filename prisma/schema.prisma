@@ -48,11 +48,13 @@ model Subject {
 }
 
 model MasterAssignment {
-  id        String   @id @default(uuid())
-  title     String
-  detail    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id                String   @id @default(uuid())
+  title             String
+  detail            String
+  isGroupAssignment Boolean
+  dueDate           DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
 
   subjectId   String
   subject     Subject      @relation(fields: [subjectId], references: [id])
@@ -65,6 +67,7 @@ model Assignment {
   status               Status
   content              String
   previousAssignmentId String?
+  score                Int?
 
   masterId         String
   masterAssignment MasterAssignment @relation(fields: [masterId], references: [id])

@@ -1,4 +1,5 @@
 import { NotificationType } from '@prisma/client';
+import { HTMLEmailBuilder } from '../email/email.builder';
 
 interface NotificationStrategy {
   getSubject(): string;
@@ -9,7 +10,8 @@ interface NotificationStrategy {
 }
 
 export interface NotificationData {
-  name: string;
+  name?: string;
+  assignmentTitle?: string;
 }
 
 class DueDateNotificationStrategy implements NotificationStrategy {
@@ -27,6 +29,12 @@ class DueDateNotificationStrategy implements NotificationStrategy {
 }
 
 class AssignReviewNotificationStrategy implements NotificationStrategy {
+  private readonly assignmentTitle: string;
+
+  constructor(data: NotificationData) {
+    this.assignmentTitle = data.assignmentTitle || '';
+  }
+
   getSubject(): string {
     return 'Assign to review';
   }
@@ -36,15 +44,19 @@ class AssignReviewNotificationStrategy implements NotificationStrategy {
   }
 
   getHtml(): string {
-    return '';
+    const emailBuilder = new HTMLEmailBuilder();
+    emailBuilder
+      .addHeading('Please review assignment', 1)
+      .addHeading(this.assignmentTitle, 2);
+    return emailBuilder.build();
   }
 }
 
 class CommentNotificationStrategy implements NotificationStrategy {
   private name: string;
 
-  constructor(name: string) {
-    this.name = name;
+  constructor(data: NotificationData) {
+    this.name = data.name || '';
   }
 
   getSubject(): string {
@@ -83,9 +95,9 @@ export class NotificationStrategyFactory {
       case NotificationType.DUE_DATE:
         return new DueDateNotificationStrategy();
       case NotificationType.ASSIGN_REVIEW:
-        return new AssignReviewNotificationStrategy();
+        return new AssignReviewNotificationStrategy(data);
       case NotificationType.COMMENT:
-        return new CommentNotificationStrategy(data.name);
+        return new CommentNotificationStrategy(data);
       case NotificationType.REVIEWED:
         return new ReviewedNotificationStrategy();
     }

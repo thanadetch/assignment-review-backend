@@ -4,11 +4,19 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AssignmentRepository } from './assignment.repository';
-import { Assignment, AssignmentType, Prisma, Status } from '@prisma/client';
+import {
+  Assignment,
+  AssignmentType,
+  NotificationType,
+  Prisma,
+  Status,
+} from '@prisma/client';
 import { UpdateAssignmentDto } from '../../assignments/dto/update-assignment.dto';
 import { AssignReviewersDto } from '../../assignments/dto/assign-reviewers.dto';
 import { GroupService } from '../../groups/groups.service';
 import { UsersService } from '../../users/users.service';
+import { NotificationService } from '../../notification/notification.service';
+import { NotificationData } from '../../notification/notification.strategy';
 
 @Injectable()
 export class AssignmentService {
@@ -16,6 +24,7 @@ export class AssignmentService {
     private readonly assignmentRepository: AssignmentRepository,
     private readonly groupService: GroupService,
     private readonly userService: UsersService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async createMany(data: Prisma.AssignmentUncheckedCreateInput[]) {
@@ -48,9 +57,11 @@ export class AssignmentService {
       status: Status.IN_REVIEW,
     });
 
-    //TODO notification
 
     if (isGroupAssignment) {
+      await this.sendGroupNotification(groupId, {
+        assignmentTitle: submission.masterAssignment.title,
+      });
       return this.assignmentRepository.create({
         type: AssignmentType.REVIEW,
         previousAssignmentId: assignmentId,
@@ -61,6 +72,9 @@ export class AssignmentService {
       });
     }
 
+    await this.sendNotification(userId, {
+      assignmentTitle: submission.masterAssignment.title,
+    });
     return this.assignmentRepository.create({
       type: AssignmentType.REVIEW,
       previousAssignmentId: assignmentId,
@@ -71,14 +85,146 @@ export class AssignmentService {
     });
   }
 
+  async assignRandom(assignmentId: string, dto: AssignReviewersDto) {
+    const { isGroupAssignment } = dto;
+    const submission = await this.findOne(assignmentId);
+    if (!submission) {
+      throw new NotFoundException('Submission not found');
+    }
+    const alreadyReviewsTasks =
+      await this.findByPreviousAssignmentId(assignmentId);
+    await this.assignmentRepository.update(assignmentId, {
+      status: Status.IN_REVIEW,
+    });
+    if (isGroupAssignment) {
+      const groups = await this.groupService.findAll();
+      const groupIds = groups.map((g) => g.id);
+      if (groupIds.length === 0) {
+        return;
+      }
+
+      const alreadyAssignedGroupIds = alreadyReviewsTasks
+        .map((a) => a.groupId)
+        .filter((id) => id != null);
+
+      const alreadyAssignedSet = new Set(alreadyAssignedGroupIds);
+      const firstUnassignedId = groupIds.find(
+        (id) => !alreadyAssignedSet.has(id),
+      );
+      if (firstUnassignedId) {
+        await this.sendGroupNotification(firstUnassignedId, {
+          assignmentTitle: submission.masterAssignment.title,
+        });
+        return this.assignmentRepository.create({
+          type: AssignmentType.REVIEW,
+          previousAssignmentId: assignmentId,
+          content: '',
+          status: Status.ASSIGNED,
+          masterId: submission.masterId,
+          groupId: firstUnassignedId,
+        });
+      }
+
+      const reviewCount = new Map<string, number>();
+      for (const groupId of alreadyAssignedGroupIds) {
+        const currentCount = reviewCount.get(groupId) || 0;
+        reviewCount.set(groupId, currentCount + 1);
+      }
+
+      let minCount = Infinity;
+      let groupsWithLowestCount: string[] = [];
+      for (const [groupId, count] of reviewCount.entries()) {
+        if (count < minCount) {
+          minCount = count;
+          groupsWithLowestCount = [groupId];
+        } else if (count === minCount) {
+          groupsWithLowestCount.push(groupId);
+        }
+      }
+      const assignedGroupId = groupsWithLowestCount[0];
+      await this.sendGroupNotification(assignedGroupId, {
+        assignmentTitle: submission.masterAssignment.title,
+      });
+      return this.assignmentRepository.create({
+        type: AssignmentType.REVIEW,
+        previousAssignmentId: assignmentId,
+        content: '',
+        status: Status.ASSIGNED,
+        masterId: submission.masterId,
+        groupId: assignedGroupId,
+      });
+    } else {
+      const students = await this.userService.findStudents();
+      const userIds = students.map((s) => s.id);
+      const alreadyAssignedUserIds = alreadyReviewsTasks
+        .map((a) => a.userId)
+        .filter((id) => id != null);
+
+      const alreadyAssignedSet = new Set(alreadyAssignedUserIds);
+      const firstUnassignedId = userIds.find(
+        (id) => !alreadyAssignedSet.has(id),
+      );
+      if (firstUnassignedId) {
+        await this.sendNotification(firstUnassignedId, {
+          assignmentTitle: submission.masterAssignment.title,
+        });
+        return this.assignmentRepository.create({
+          type: AssignmentType.REVIEW,
+          previousAssignmentId: assignmentId,
+          content: '',
+          status: Status.ASSIGNED,
+          masterId: submission.masterId,
+          userId: firstUnassignedId,
+        });
+      }
+      const reviewCount = new Map<string, number>();
+      for (const userId of alreadyAssignedUserIds) {
+        const currentCount = reviewCount.get(userId) || 0;
+        reviewCount.set(userId, currentCount + 1);
+      }
+
+      let minCount = Infinity;
+      let userWithLowestCount: string[] = [];
+      for (const [userId, count] of reviewCount.entries()) {
+        if (count < minCount) {
+          minCount = count;
+          userWithLowestCount = [userId];
+        } else if (count === minCount) {
+          userWithLowestCount.push(userId);
+        }
+      }
+      const assignedUserId = userWithLowestCount[0];
+      await this.sendNotification(assignedUserId, {
+        assignmentTitle: submission.masterAssignment.title,
+      });
+      return this.assignmentRepository.create({
+        type: AssignmentType.REVIEW,
+        previousAssignmentId: assignmentId,
+        content: '',
+        status: Status.ASSIGNED,
+        masterId: submission.masterId,
+        userId: assignedUserId,
+      });
+    }
+  }
+
+  async giveScore(assignmentId: string, score: number){
+    return this.assignmentRepository.update(assignmentId, {
+      score: score,
+      status: Status.COMPLETED
+    })
+  }
+
   async findRelatedAssignment(userId: string, groupId: string) {
     return this.assignmentRepository.findBy({
       OR: [{ userId }, { groupId }],
     });
   }
 
-  async findAll() {
-    return this.assignmentRepository.findAll()
+  async findAllByMasterAssignmentId(id: string) {
+    return this.assignmentRepository.findBy({
+      masterId: id,
+    });
   }
 
   async findSubmittedAssignment(masterId: string) {
@@ -101,72 +247,6 @@ export class AssignmentService {
   async countBy(query: Prisma.AssignmentWhereInput): Promise<number> {
     return this.assignmentRepository.countBy(query);
   }
-
-  // async getAssociatedUserIdsByAssignmentIdV0(assignmentId: string) {
-  //   const assignment = await this.assignmentRepository.findOne(assignmentId);
-  //   let associatedMembers: string[] = [];
-  //   const instructors = await this.userService.findInstructors();
-  //   const instructorIds =  instructors.map(x=> x.id)
-  //   associatedMembers = associatedMembers.concat(instructorIds);
-  //   if (!assignment) throw new BadRequestException('Assignment not found');
-  //
-  //   //Case review type
-  //   if (assignment.type === AssignmentType.REVIEW) {
-  //     if (!assignment.previousAssignmentId) throw new BadRequestException('Previous Assignment Id not found');
-  //     const originalAssignment = await this.assignmentRepository.findOne(
-  //       assignment.previousAssignmentId,
-  //     );
-  //     if (!originalAssignment) throw new BadRequestException('Original Assignment not found');
-  //     const isOriginalGroupAssignment = originalAssignment.groupId != null;
-  //     if (isOriginalGroupAssignment && originalAssignment.groupId) {
-  //       const memberIds = await this.groupService.findAllMemberIds(
-  //         originalAssignment.groupId,
-  //       );
-  //       associatedMembers = associatedMembers.concat(memberIds);
-  //     }
-  //     else if (originalAssignment.userId != null) {
-  //       associatedMembers = associatedMembers.concat(originalAssignment.userId)
-  //     }
-  //     const isGroupAssignment = assignment.groupId != null;
-  //     if (isGroupAssignment && assignment.groupId) {
-  //       const memberIds = await this.groupService.findAllMemberIds(
-  //         assignment.groupId,
-  //       );
-  //       associatedMembers = associatedMembers.concat(memberIds);
-  //     }
-  //     else if (assignment.userId != null) {
-  //       associatedMembers = associatedMembers.concat(assignment.userId)
-  //     }
-  //   }
-  //
-  //   //Case not Review Type
-  //   const isGroupAssignment = assignment.groupId != null;
-  //   if (isGroupAssignment && assignment.groupId) {
-  //     const memberIds = await this.groupService.findAllMemberIds(
-  //       assignment.groupId,
-  //     );
-  //     associatedMembers = associatedMembers.concat(memberIds);
-  //   }
-  //   else if (assignment.userId != null) {
-  //     associatedMembers = associatedMembers.concat(assignment.userId)
-  //   }
-  //
-  //   const reviewAssignments = await this.findByPreviousAssignmentId(assignmentId)
-  //   for (const a of reviewAssignments) {
-  //     const isGroupAssignment = a.groupId != null;
-  //     if (isGroupAssignment && a.groupId) {
-  //       const memberIds = await this.groupService.findAllMemberIds(
-  //         a.groupId,
-  //       );
-  //       associatedMembers = associatedMembers.concat(memberIds);
-  //     }
-  //     else if (assignment.userId != null) {
-  //       associatedMembers = associatedMembers.concat(assignment.userId)
-  //     }
-  //   }
-  //
-  //   return associatedMembers;
-  // }
 
   async getAssociatedUserIdsByAssignmentId(
     assignmentId: string,
@@ -228,5 +308,21 @@ export class AssignmentService {
     } else if (assignment.userId) {
       memberIdSet.add(assignment.userId);
     }
+  }
+
+  private async sendGroupNotification(groupId: string, data: NotificationData) {
+    await this.notificationService.sendGroupNotification(
+      groupId,
+      data,
+      NotificationType.ASSIGN_REVIEW,
+    );
+  }
+
+  private async sendNotification(userId: string, data: NotificationData) {
+    await this.notificationService.sendNotificationById(
+      userId,
+      data,
+      NotificationType.ASSIGN_REVIEW,
+    );
   }
 }

@@ -24,4 +24,6 @@ export class CreateMasterAssignmentDto {
   subjectId: string;
 
   isGroupAssignment: boolean;
+
+  dueDate:Date
 }

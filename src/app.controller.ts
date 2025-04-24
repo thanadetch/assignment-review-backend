@@ -23,7 +23,7 @@ export class AppController {
   @Roles(Role.STUDENT, Role.INSTRUCTOR)
   async getProfile(@Req() req: Request) {
     const user = req.user as { email: string; role: Role };
-    await this.notificationService.sendNotification(
+    await this.notificationService.sendNotificationByEmail(
       user.email,
       { name: 'test' },
       NotificationType.DUE_DATE,
@@ -36,7 +36,7 @@ export class AppController {
   @Roles(Role.INSTRUCTOR)
   async getProfileInstructor(@Req() req: Request) {
     const user = req.user as { email: string; role: Role };
-    await this.notificationService.sendNotification(
+    await this.notificationService.sendNotificationByEmail(
       user.email,
       { name: 'test' },
       NotificationType.DUE_DATE,
