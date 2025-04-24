@@ -209,6 +209,13 @@ export class AssignmentService {
   }
 
   async giveScore(assignmentId: string, score: number){
+    const assignment = await this.assignmentRepository.findOne(assignmentId);
+    if (!assignment) {
+      throw new BadRequestException('Assignment not found');
+    }
+    if(assignment.status != Status.REVIEWED) {
+      throw new BadRequestException('Assignment must been reviewed first.');
+    }
     return this.assignmentRepository.update(assignmentId, {
       score: score,
       status: Status.COMPLETED
