@@ -21,6 +21,7 @@ export class AssignmentRepository {
       where: query,
       include: {
         masterAssignment: true,
+        user: true,
         reviews: {
           include: {
             comments: {
