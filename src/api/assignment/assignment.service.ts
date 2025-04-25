@@ -38,6 +38,17 @@ export class AssignmentService {
     if (!assignment) {
       throw new NotFoundException(`Assignment with ID ${id} not found`);
     }
+    if(assignment.type == AssignmentType.SUBMISSION) {
+      const reviewAssignments = await this.findReviewsByAssignmentId(
+        assignment.id,
+      );
+      return {
+        ...assignment,
+        reviews: reviewAssignments.map(
+          (reviewAssignment) => reviewAssignment.reviews,
+        ),
+      }
+    }
     return assignment;
   }
 
@@ -236,7 +247,6 @@ export class AssignmentService {
         );
         assignmentSet.add({
           ...relatedAssignment,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
           reviews: reviewAssignments.map(
             (reviewAssignment) => reviewAssignment.reviews,
           ),
@@ -446,12 +456,6 @@ export class AssignmentService {
   }
 
   async findReviewsByAssignmentId(assignmentId: string) {
-    const originalAssignment = await this.findOne(assignmentId);
-    const { type } = originalAssignment;
-    if (type == AssignmentType.SUBMISSION) {
-      return this.findByPreviousAssignmentId(assignmentId);
-    }
-
-    return [originalAssignment];
+    return this.findByPreviousAssignmentId(assignmentId);
   }
 }
