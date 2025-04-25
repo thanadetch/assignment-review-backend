@@ -41,11 +41,26 @@ export class AssignmentService {
     const instructors = await this.userService.findInstructors();
     instructors.forEach((instructor) => associatedMemberIds.add(instructor.id));
     await this.addAssignmentMembersToSet(assignment, associatedMemberIds);
+
     if(assignment.type == AssignmentType.SUBMISSION) {
+      // if not owner dont see reviews
       if (!associatedMemberIds.has(user.userId)) {
         assignment.reviews = [];
-        return assignment
       }
+
+      // add more associated for reviewers if not in then un authorize
+      const subsequentReviewAssignments =
+        await this.findByPreviousAssignmentId(id);
+      for (const reviewAssignment of subsequentReviewAssignments) {
+        await this.addAssignmentMembersToSet(
+          reviewAssignment,
+          associatedMemberIds,
+        );
+      }
+      if (!associatedMemberIds.has(user.userId)) {
+        throw new UnauthorizedException("User doesn't have permission");
+      }
+
     }
     else if (assignment.type == AssignmentType.REVIEW) {
       if (!associatedMemberIds.has(user.userId)) {
@@ -444,6 +459,26 @@ export class AssignmentService {
       );
     }
 
+    return Array.from(associatedMemberIds);
+  }
+
+  async getAssociatedUserIdsByAssignmentIdForReview(
+    assignmentId: string,
+  ): Promise<string[]> {
+    const assignment = await this.assignmentRepository.findOne(assignmentId);
+    return this.getInitialAssociateUserIds(assignment as Assignment);
+  }
+
+  private async getInitialAssociateUserIds(assignment: Assignment)  {
+    if (!assignment) {
+      throw new BadRequestException(
+        `Assignment with not found.`,
+      );
+    }
+    const associatedMemberIds = new Set<string>();
+    const instructors = await this.userService.findInstructors();
+    instructors.forEach((instructor) => associatedMemberIds.add(instructor.id));
+    await this.addAssignmentMembersToSet(assignment, associatedMemberIds);
     return Array.from(associatedMemberIds);
   }
 

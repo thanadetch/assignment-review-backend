@@ -30,9 +30,8 @@ export class ReviewService {
 
   async create(req: CreateReviewDto, userPayload: JwtPayload) {
     const { userId } = userPayload;
-    //TODO change logic for review
     const associatedUserIds =
-      await this.assignmentService.getAssociatedUserIdsByAssignmentId(
+      await this.assignmentService.getAssociatedUserIdsByAssignmentIdForReview(
         req.assignmentId,
       );
 
@@ -49,7 +48,6 @@ export class ReviewService {
     const originalAssignment = await this.assignmentService.findOne(
       assignment.previousAssignmentId,
     );
-    //TODO might update original assignment
     const numAssignedReviews = await this.assignmentService.countBy({
       previousAssignmentId: originalAssignment.id,
     });
