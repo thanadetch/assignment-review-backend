@@ -236,15 +236,17 @@ export class AssignmentService {
         );
         assignmentSet.add({
           ...relatedAssignment,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
-          reviews: reviewAssignments.map(reviewAssignment => (reviewAssignment.reviews))
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+          reviews: reviewAssignments.map(
+            (reviewAssignment) => reviewAssignment.reviews,
+          ),
         });
       } else if (
         relatedAssignment.type == AssignmentType.REVIEW &&
         relatedAssignment.previousAssignmentId
       ) {
         assignmentSet.add({
-          assignment: relatedAssignment,
+          ...relatedAssignment,
         });
       }
     }
@@ -444,13 +446,10 @@ export class AssignmentService {
   }
 
   async findReviewsByAssignmentId(assignmentId: string) {
-    const originalAssignment =
-      await this.findOne(assignmentId);
+    const originalAssignment = await this.findOne(assignmentId);
     const { type } = originalAssignment;
     if (type == AssignmentType.SUBMISSION) {
-      const reviewsAssignments =
-        await this.findByPreviousAssignmentId(assignmentId);
-      return reviewsAssignments ? reviewsAssignments : [];
+      return this.findByPreviousAssignmentId(assignmentId);
     }
 
     return [originalAssignment];
