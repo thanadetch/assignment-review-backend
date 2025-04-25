@@ -399,7 +399,15 @@ export class AssignmentService {
   async findSubmittedAssignment(masterId: string) {
     return this.assignmentRepository.findBy({
       masterId,
-      AND: [{ status: Status.SUBMITTED }],
+      type: AssignmentType.SUBMISSION,
+      AND: [
+        {
+          OR: [
+            { status: Status.SUBMITTED },
+            { status: Status.IN_REVIEW },
+          ],
+        },
+      ],
     });
   }
 
