@@ -54,8 +54,10 @@ export class AssignmentController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.assignmentService.findOne(id);
+  @UseGuards(JwtAuthGuard)
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.assignmentService.findOneWithPermission(id, user);
   }
 
   @Patch('submit/:id')

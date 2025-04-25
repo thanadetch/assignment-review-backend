@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AssignmentRepository } from './assignment.repository';
 import {
@@ -19,6 +20,7 @@ import { GroupService } from '../../groups/groups.service';
 import { UsersService } from '../../users/users.service';
 import { NotificationService } from '../../notification/notification.service';
 import { NotificationData } from '../../notification/notification.strategy';
+import { JwtPayload } from '../../auth/strategies/jwt.strategy';
 
 @Injectable()
 export class AssignmentService {
@@ -33,12 +35,32 @@ export class AssignmentService {
     return this.assignmentRepository.createMany(data);
   }
 
+  async findOneWithPermission(id: string, user: JwtPayload) {
+    const assignment = await this.findOne(id);
+    const associatedMemberIds = new Set<string>();
+    const instructors = await this.userService.findInstructors();
+    instructors.forEach((instructor) => associatedMemberIds.add(instructor.id));
+    await this.addAssignmentMembersToSet(assignment, associatedMemberIds);
+    if(assignment.type == AssignmentType.SUBMISSION) {
+      if (!associatedMemberIds.has(user.userId)) {
+        assignment.reviews = [];
+        return assignment
+      }
+    }
+    else if (assignment.type == AssignmentType.REVIEW) {
+      if (!associatedMemberIds.has(user.userId)) {
+        throw new UnauthorizedException("User doesn't have permission");
+      }
+    }
+    return assignment;
+  }
+
   async findOne(id: string) {
     const assignment = await this.assignmentRepository.findOne(id);
     if (!assignment) {
       throw new NotFoundException(`Assignment with ID ${id} not found`);
     }
-    if(assignment.type == AssignmentType.SUBMISSION) {
+    if (assignment.type == AssignmentType.SUBMISSION) {
       const reviewAssignments = await this.findReviewsByAssignmentId(
         assignment.id,
       );
@@ -49,7 +71,7 @@ export class AssignmentService {
       return {
         ...assignment,
         reviews,
-      }
+      };
     }
 
     return assignment;
