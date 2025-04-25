@@ -12,6 +12,7 @@ interface NotificationStrategy {
 export interface NotificationData {
   name?: string;
   assignmentTitle?: string;
+  content?: string;
 }
 
 class DueDateNotificationStrategy implements NotificationStrategy {
@@ -53,22 +54,27 @@ class AssignReviewNotificationStrategy implements NotificationStrategy {
 }
 
 class CommentNotificationStrategy implements NotificationStrategy {
-  private name: string;
+  private readonly content: string;
+  private readonly name: string;
 
   constructor(data: NotificationData) {
+    this.content = data.content || '';
     this.name = data.name || '';
   }
 
   getSubject(): string {
-    return 'Comment';
+    return 'Someone just comment on your review';
   }
 
   getContent(): string {
-    return 'comment';
+    return `${this.name} just commented on your review : ${this.content}`;
   }
 
   getHtml(): string {
-    return '';
+    const emailBuilder = new HTMLEmailBuilder();
+    emailBuilder.addHeading(this.name, 3)
+      .addParagraph(`: ${this.content}`)
+    return emailBuilder.build();
   }
 }
 
