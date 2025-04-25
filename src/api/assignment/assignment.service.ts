@@ -450,14 +450,6 @@ export class AssignmentService {
       );
     }
 
-    const subsequentReviewAssignments =
-      await this.findByPreviousAssignmentId(assignmentId);
-    for (const reviewAssignment of subsequentReviewAssignments) {
-      await this.addAssignmentMembersToSet(
-        reviewAssignment,
-        associatedMemberIds,
-      );
-    }
 
     return Array.from(associatedMemberIds);
   }
