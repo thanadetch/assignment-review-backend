@@ -5,7 +5,7 @@ import {
   Logger,
   Param,
   Patch,
-  Post,
+  Post, Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -41,6 +41,14 @@ export class AssignmentController {
   @Roles(Role.INSTRUCTOR)
   findAllByMasterAssignmentId(@Param('id') id: string) {
     return this.assignmentService.findAllByMasterAssignmentId(id);
+  }
+
+
+  @Get('available-reviewers/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.INSTRUCTOR)
+  findAllAvailableReviewers(@Param('id') id: string) {
+    return this.assignmentService.findAllAvailableReviewers(id);
   }
 
   @Get(':id')

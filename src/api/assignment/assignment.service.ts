@@ -7,9 +7,10 @@ import { AssignmentRepository } from './assignment.repository';
 import {
   Assignment,
   AssignmentType,
+  Group,
   NotificationType,
   Prisma,
-  Status,
+  Status, User,
 } from '@prisma/client';
 import { UpdateAssignmentDto } from '../../assignments/dto/update-assignment.dto';
 import { AssignReviewersDto } from '../../assignments/dto/assign-reviewers.dto';
@@ -56,7 +57,6 @@ export class AssignmentService {
     await this.assignmentRepository.update(assignmentId, {
       status: Status.IN_REVIEW,
     });
-
 
     if (isGroupAssignment) {
       await this.sendGroupNotification(groupId, {
@@ -208,18 +208,18 @@ export class AssignmentService {
     }
   }
 
-  async giveScore(assignmentId: string, score: number){
+  async giveScore(assignmentId: string, score: number) {
     const assignment = await this.assignmentRepository.findOne(assignmentId);
     if (!assignment) {
       throw new BadRequestException('Assignment not found');
     }
-    if(assignment.status != Status.REVIEWED) {
+    if (assignment.status != Status.REVIEWED) {
       throw new BadRequestException('Assignment must been reviewed first.');
     }
     return this.assignmentRepository.update(assignmentId, {
       score: score,
-      status: Status.COMPLETED
-    })
+      status: Status.COMPLETED,
+    });
   }
 
   async findRelatedAssignment(userId: string, groupId: string) {
@@ -232,6 +232,86 @@ export class AssignmentService {
     return this.assignmentRepository.findBy({
       masterId: id,
     });
+  }
+
+  async findAllAvailableReviewers(assignmentId: string) {
+    const originalAssignment = await this.findOne(assignmentId);
+    const ownerGroupId = originalAssignment.groupId;
+    const isGroupAssignment = ownerGroupId != null;
+    const {userId} = originalAssignment;
+    const alreadyReviewsTasks =
+      await this.findByPreviousAssignmentId(assignmentId);
+    const availableGroup = await this.getAvailableGroups(
+      alreadyReviewsTasks,
+      originalAssignment,
+    );
+    const availableUsers = await this.getAvailableUsers(
+      alreadyReviewsTasks,
+      originalAssignment,
+    );
+
+    //filter owner out
+    if(isGroupAssignment) {
+      const effectiveUsers = availableUsers.filter(u => u.groupId != ownerGroupId);
+      return {
+        groups:availableGroup,
+        users: effectiveUsers,
+      }
+    }
+    else if (userId != null) {
+      const ownerUser = await this.userService.findById(userId);
+      if(!ownerUser) {
+        throw new BadRequestException('User not found');
+      }
+      const effectiveGroups = availableGroup.filter(g => g.id != ownerUser.groupId);
+      return {
+        groups:effectiveGroups,
+        users: availableUsers
+      }
+    }
+
+    return {
+      groups: availableGroup,
+      users: availableUsers,
+    };
+  }
+
+  private async getAvailableGroups(
+    assignments: Assignment[],
+    originalAssignment: Assignment,
+  ): Promise<Group[]> {
+    const groups = await this.groupService.findAll();
+    const alreadyAssignedGroupIds = assignments
+      .map((a) => a.groupId)
+      .filter((id) => id != null);
+
+    const alreadyAssignedSet = new Set(alreadyAssignedGroupIds);
+    return groups.filter(
+      (g) =>
+        !alreadyAssignedSet.has(g.id) && !this.isGroupOwner(originalAssignment, g),
+    );
+  }
+
+  private isGroupOwner(assignment: Assignment, group: Group) {
+    return assignment.groupId == group.id;
+  }
+
+  private async getAvailableUsers(
+    assignments: Assignment[],
+    originalAssignment: Assignment,
+  ) {
+    const users = await this.userService.findStudents();
+
+    const alreadyAssignedUserIds = assignments
+      .map((a) => a.userId)
+      .filter((id) => id != null);
+
+    const alreadyAssignedSet = new Set(alreadyAssignedUserIds);
+    return users.filter((u) => !alreadyAssignedSet.has(u.id) && !this.isOwner(originalAssignment, u));
+  }
+
+  private isOwner(assignment: Assignment, user: User) {
+    return assignment.userId == user.id;
   }
 
   async findSubmittedAssignment(masterId: string) {
