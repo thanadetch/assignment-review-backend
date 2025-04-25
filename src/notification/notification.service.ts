@@ -6,7 +6,7 @@ import {
   NotificationData,
   NotificationStrategyFactory,
 } from './notification.strategy';
-import { NotificationType, User } from '@prisma/client';
+import { Notification, NotificationType, User } from '@prisma/client';
 import { GroupService } from '../groups/groups.service';
 
 @Injectable()
@@ -17,6 +17,10 @@ export class NotificationService {
     private readonly groupService: GroupService,
     private readonly notificationRepository: NotificationRepository,
   ) {}
+
+  async findAllByUserId(userId: string): Promise<Notification[]> {
+    return this.notificationRepository.findByUserId(userId);
+  }
 
   async sendNotificationByEmail(
     email: string,

@@ -40,7 +40,7 @@ class AssignReviewNotificationStrategy implements NotificationStrategy {
   }
 
   getContent(): string {
-    return 'assign-review';
+    return `Please review assignment ${this.assignmentTitle}`;
   }
 
   getHtml(): string {

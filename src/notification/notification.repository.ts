@@ -11,4 +11,12 @@ export class NotificationRepository {
       data
     })
   }
+
+  async findByUserId(userId: string) {
+    return this.prismaService.notification.findMany({
+      where: {
+        userId: userId,
+      }
+    })
+  }
 }
