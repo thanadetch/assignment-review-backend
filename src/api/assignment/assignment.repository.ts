@@ -22,6 +22,7 @@ export class AssignmentRepository {
       include: {
         masterAssignment: true,
         user: true,
+        group: true,
         reviews: {
           include: {
             comments: {
