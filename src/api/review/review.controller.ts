@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get, Logger,
-  Param,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Logger, Post, Req, UseGuards } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/review.dto';
 import { Request } from 'express';
@@ -27,13 +19,5 @@ export class ReviewController {
   async create(@Body() dto: CreateReviewDto, @Req() req: Request) {
     const user = req.user as JwtPayload;
     return this.reviewService.create(dto, user);
-  }
-
-  @Get('assignment/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STUDENT)
-  async findRelatedReview(@Param('id') id: string, @Req() req: Request) {
-    const user = req.user as JwtPayload;
-    return this.reviewService.findReviewsByAssignmentId(id, user);
   }
 }

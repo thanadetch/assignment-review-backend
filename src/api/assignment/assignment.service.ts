@@ -10,7 +10,8 @@ import {
   Group,
   NotificationType,
   Prisma,
-  Status, User,
+  Status,
+  User,
 } from '@prisma/client';
 import { UpdateAssignmentDto } from '../../assignments/dto/update-assignment.dto';
 import { AssignReviewersDto } from '../../assignments/dto/assign-reviewers.dto';
@@ -223,9 +224,31 @@ export class AssignmentService {
   }
 
   async findRelatedAssignment(userId: string, groupId: string) {
-    return this.assignmentRepository.findBy({
+    const assignments = await this.assignmentRepository.findBy({
       OR: [{ userId }, { groupId }],
     });
+    const assignmentSet = new Set();
+    console.log(assignments);
+    for (const relatedAssignment of assignments) {
+      if (relatedAssignment.type == AssignmentType.SUBMISSION) {
+        const reviewAssignments = await this.findReviewsByAssignmentId(
+          relatedAssignment.id,
+        );
+        assignmentSet.add({
+          ...relatedAssignment,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
+          reviews: reviewAssignments.map(reviewAssignment => (reviewAssignment.reviews))
+        });
+      } else if (
+        relatedAssignment.type == AssignmentType.REVIEW &&
+        relatedAssignment.previousAssignmentId
+      ) {
+        assignmentSet.add({
+          assignment: relatedAssignment,
+        });
+      }
+    }
+    return Array.from(assignmentSet);
   }
 
   async findAllByMasterAssignmentId(id: string) {
@@ -238,7 +261,7 @@ export class AssignmentService {
     const originalAssignment = await this.findOne(assignmentId);
     const ownerGroupId = originalAssignment.groupId;
     const isGroupAssignment = ownerGroupId != null;
-    const {userId} = originalAssignment;
+    const { userId } = originalAssignment;
     const alreadyReviewsTasks =
       await this.findByPreviousAssignmentId(assignmentId);
     const availableGroup = await this.getAvailableGroups(
@@ -251,23 +274,26 @@ export class AssignmentService {
     );
 
     //filter owner out
-    if(isGroupAssignment) {
-      const effectiveUsers = availableUsers.filter(u => u.groupId != ownerGroupId);
+    if (isGroupAssignment) {
+      const effectiveUsers = availableUsers.filter(
+        (u) => u.groupId != ownerGroupId,
+      );
       return {
-        groups:availableGroup,
+        groups: availableGroup,
         users: effectiveUsers,
-      }
-    }
-    else if (userId != null) {
+      };
+    } else if (userId != null) {
       const ownerUser = await this.userService.findById(userId);
-      if(!ownerUser) {
+      if (!ownerUser) {
         throw new BadRequestException('User not found');
       }
-      const effectiveGroups = availableGroup.filter(g => g.id != ownerUser.groupId);
+      const effectiveGroups = availableGroup.filter(
+        (g) => g.id != ownerUser.groupId,
+      );
       return {
-        groups:effectiveGroups,
-        users: availableUsers
-      }
+        groups: effectiveGroups,
+        users: availableUsers,
+      };
     }
 
     return {
@@ -288,7 +314,8 @@ export class AssignmentService {
     const alreadyAssignedSet = new Set(alreadyAssignedGroupIds);
     return groups.filter(
       (g) =>
-        !alreadyAssignedSet.has(g.id) && !this.isGroupOwner(originalAssignment, g),
+        !alreadyAssignedSet.has(g.id) &&
+        !this.isGroupOwner(originalAssignment, g),
     );
   }
 
@@ -307,7 +334,10 @@ export class AssignmentService {
       .filter((id) => id != null);
 
     const alreadyAssignedSet = new Set(alreadyAssignedUserIds);
-    return users.filter((u) => !alreadyAssignedSet.has(u.id) && !this.isOwner(originalAssignment, u));
+    return users.filter(
+      (u) =>
+        !alreadyAssignedSet.has(u.id) && !this.isOwner(originalAssignment, u),
+    );
   }
 
   private isOwner(assignment: Assignment, user: User) {
@@ -411,5 +441,18 @@ export class AssignmentService {
       data,
       NotificationType.ASSIGN_REVIEW,
     );
+  }
+
+  async findReviewsByAssignmentId(assignmentId: string) {
+    const originalAssignment =
+      await this.findOne(assignmentId);
+    const { type } = originalAssignment;
+    if (type == AssignmentType.SUBMISSION) {
+      const reviewsAssignments =
+        await this.findByPreviousAssignmentId(assignmentId);
+      return reviewsAssignments ? reviewsAssignments : [];
+    }
+
+    return [originalAssignment];
   }
 }

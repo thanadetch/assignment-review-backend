@@ -1,6 +1,7 @@
 import {
   BadRequestException,
-  Injectable, Logger,
+  Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ReviewRepository } from './review.repository';
@@ -9,7 +10,7 @@ import { UsersService } from '../../users/users.service';
 import { CreateReviewDto } from './dto/review.dto';
 import { JwtPayload } from '../../auth/strategies/jwt.strategy';
 import { AssignmentService } from '../assignment/assignment.service';
-import { AssignmentType, Status } from '@prisma/client';
+import { Status } from '@prisma/client';
 import { GroupService } from '../../groups/groups.service';
 
 @Injectable()
@@ -22,12 +23,6 @@ export class ReviewService {
     private groupService: GroupService,
   ) {}
   private readonly logger = new Logger(ReviewService.name);
-  getReviewsByAssignmentId(assignmentId: string, email: string) {
-    //check permission
-    //find assignment
-    //find user or group
-    //get review and its comment
-  }
 
   async findById(id: string) {
     return this.reviewRepository.findOne(id);
@@ -41,11 +36,10 @@ export class ReviewService {
         req.assignmentId,
       );
 
-    this.logger.log("associatedUserIds", associatedUserIds);
+    this.logger.log('associatedUserIds', associatedUserIds);
     if (!associatedUserIds.includes(userId)) {
       throw new UnauthorizedException();
     }
-
 
     await this.throwIfAlreadyCreate(req.assignmentId, userId);
     const assignment = await this.assignmentService.findOne(req.assignmentId);
@@ -62,7 +56,7 @@ export class ReviewService {
 
     const isGroupAssignment = assignment.groupId != null;
     if (isGroupAssignment && assignment.groupId) {
-      this.logger.log("isGroupAssignment");
+      this.logger.log('isGroupAssignment');
       await this.reviewRepository.create({
         assignmentId: req.assignmentId,
         userId,
@@ -78,7 +72,7 @@ export class ReviewService {
 
       if (totalReviews >= memberCount) {
         await this.completeAssignment(assignment.id);
-        this.logger.log("Complete assignment");
+        this.logger.log('Complete assignment');
       }
 
       const numberOfCompletedAssignmentReviews =
@@ -88,11 +82,14 @@ export class ReviewService {
             { status: Status.COMPLETED },
           ],
         });
-      this.logger.log("numAssignedReviews", numAssignedReviews);
-      this.logger.log("numberOfCompletedAssignmentReviews", numberOfCompletedAssignmentReviews);
+      this.logger.log('numAssignedReviews', numAssignedReviews);
+      this.logger.log(
+        'numberOfCompletedAssignmentReviews',
+        numberOfCompletedAssignmentReviews,
+      );
       if (numberOfCompletedAssignmentReviews >= numAssignedReviews) {
         await this.reviewAssignment(originalAssignment.id);
-        this.logger.log("Mark Original assignment as Reviewed");
+        this.logger.log('Mark Original assignment as Reviewed');
       }
     } else {
       await this.reviewRepository.create({
@@ -106,21 +103,6 @@ export class ReviewService {
 
     //then notify
     return 'success';
-  }
-
-  async findReviewsByAssignmentId(assignmentId: string, user: JwtPayload) {
-    //TODO check permission later
-
-    const originalAssignment =
-      await this.assignmentService.findOne(assignmentId);
-    const { type } = originalAssignment;
-    if (type == AssignmentType.SUBMISSION) {
-      const reviewsAssignments =
-        await this.assignmentService.findByPreviousAssignmentId(assignmentId);
-      return reviewsAssignments ? reviewsAssignments : [];
-    }
-
-    return [originalAssignment];
   }
 
   private async throwIfAlreadyCreate(assignmentId: string, userId: string) {

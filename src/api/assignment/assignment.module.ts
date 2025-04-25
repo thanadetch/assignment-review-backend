@@ -8,7 +8,7 @@ import { AssignmentService } from './assignment.service';
 import { NotificationModule } from '../../notification/notification.module';
 
 @Module({
-  imports: [GroupsModule, AssignmentModule, UsersModule, NotificationModule],
+  imports: [GroupsModule, UsersModule, NotificationModule],
   controllers: [AssignmentController],
   providers: [AssignmentService, PrismaService, AssignmentRepository],
   exports: [AssignmentService],

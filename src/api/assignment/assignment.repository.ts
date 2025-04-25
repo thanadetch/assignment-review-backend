@@ -21,7 +21,17 @@ export class AssignmentRepository {
       where: query,
       include: {
         masterAssignment: true,
-      }
+        reviews: {
+          include: {
+            comments: {
+              include: {
+                user: true,
+              },
+            },
+            user: true,
+          },
+        },
+      },
     });
   }
 
@@ -33,14 +43,15 @@ export class AssignmentRepository {
           include: {
             comments: {
               include: {
-                user: true
-              }
-            }
-          }
+                user: true,
+              },
+            },
+            user: true,
+          },
         },
         group: true,
         user: true,
-      }
+      },
     });
   }
 
@@ -51,7 +62,7 @@ export class AssignmentRepository {
   async countBy(query: Prisma.AssignmentWhereInput): Promise<number> {
     return this.prisma.assignment.count({
       where: query,
-    })
+    });
   }
 
   async createMany(data: Prisma.AssignmentUncheckedCreateInput[]) {
@@ -69,15 +80,15 @@ export class AssignmentRepository {
             user: true,
             comments: {
               include: {
-                user: true
-              }
-            }
-          }
+                user: true,
+              },
+            },
+          },
         },
         group: true,
         user: true,
         masterAssignment: true,
-      }
+      },
     });
   }
 
