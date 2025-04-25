@@ -5,18 +5,21 @@ import {
   Logger,
   Param,
   Patch,
-  Post, Query,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UpdateAssignmentDto } from '../../assignments/dto/update-assignment.dto';
 import { AssignmentService } from './assignment.service';
-import { AssignReviewersDto, ScoreAssignmentDto } from '../../assignments/dto/assign-reviewers.dto';
+import {
+  AssignReviewersDto,
+  ScoreAssignmentDto,
+} from '../../assignments/dto/assign-reviewers.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { JwtPayload } from '../../auth/strategies/jwt.strategy';
 
 @Controller('assignment')
@@ -42,7 +45,6 @@ export class AssignmentController {
   findAllByMasterAssignmentId(@Param('id') id: string) {
     return this.assignmentService.findAllByMasterAssignmentId(id);
   }
-
 
   @Get('available-reviewers/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)

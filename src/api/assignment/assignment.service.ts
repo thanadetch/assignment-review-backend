@@ -42,13 +42,16 @@ export class AssignmentService {
       const reviewAssignments = await this.findReviewsByAssignmentId(
         assignment.id,
       );
+      const reviews = reviewAssignments.flatMap(
+        (reviewAssignment) => reviewAssignment.reviews,
+      );
+
       return {
         ...assignment,
-        reviews: reviewAssignments.map(
-          (reviewAssignment) => reviewAssignment.reviews,
-        ),
+        reviews,
       }
     }
+
     return assignment;
   }
 
