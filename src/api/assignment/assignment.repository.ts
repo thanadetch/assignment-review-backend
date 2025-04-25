@@ -66,6 +66,7 @@ export class AssignmentRepository {
       include: {
         reviews: {
           include: {
+            user: true,
             comments: {
               include: {
                 user: true
