@@ -44,6 +44,12 @@ export class GroupService {
     return this.groupRepo.findMemberCount(groupId);
   }
 
+  async findAllMember(groupId: string) {
+    const group = await this.groupRepo.findById(groupId)
+    if(!group) throw new BadRequestException();
+    return group.users
+  }
+
   async findAllMemberIds(groupId: string) {
     const group = await this.groupRepo.findById(groupId)
     if(!group) throw new BadRequestException();

@@ -64,9 +64,15 @@ export class ReviewService {
       const memberCount = await this.groupService.findMemberCount(
         assignment.groupId,
       );
-      const totalReviews = await this.reviewRepository.countBy({
-        AND: [{ assignmentId: req.assignmentId }, { userId: userId }],
-      });
+
+      let totalReviews = 0;
+      const members = await this.groupService.findAllMember(assignment.groupId);
+      for (const member of members) {
+        const review = await this.reviewRepository.countBy({
+          AND: [{ assignmentId: req.assignmentId }, { userId: member.id }],
+        });
+        totalReviews += review
+      }
 
       if (totalReviews >= memberCount) {
         await this.completeAssignment(assignment.id);
